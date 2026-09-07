@@ -16,6 +16,8 @@ Order, and why:
   4. scrape_rotowire_lineups.py       - real starters/inactives/odds/weather - needs our fixtures to already exist (step 3)
   5. import_rotowire_lineups.py       - lineup_status (source 'rotowire'), game_odds, fixture_weather
   6. scrape_spreadex_nfl_props.py     - real player-prop odds - needs our fixtures + players to already exist
+  7. scrape_fic_anytime_td.py         - real live "Score Any TD" odds (Caesars line via fantasyinfocentral.com)
+  8. import_fic_anytime_td.py         - anytime_td market - needs our fixtures + players to already exist
 
 This is data ingestion only - the projection engine (Phase 3) that turns
 these real rows into a rating is a separate, later step, not run here.
@@ -37,6 +39,8 @@ STEPS = [
     "scrape_rotowire_lineups.py",
     "import_rotowire_lineups.py",
     "scrape_spreadex_nfl_props.py",
+    "scrape_fic_anytime_td.py",
+    "import_fic_anytime_td.py",
 ]
 
 

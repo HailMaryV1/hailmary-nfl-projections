@@ -26,22 +26,30 @@ READ THIS BEFORE ASSUMING SOMETHING IS MISSING:
   already handles this - see layer_weights' own migration comment - so
   `total_points` this early is effectively 100% Live-Odds-driven, which is
   the honest state of a Week 1 projection, not a defect.
-- rushing_td and receiving_td have NO live-odds signal at all: confirmed
-  live (2026-09-07, see docs/data-and-weights.md) that Spreadex's Weekly
-  Player Markets page has NO standalone rushing/receiving touchdown
-  market on the pages this project scrapes (only Passing Touchdowns).
-  Real anytime-TD markets likely exist elsewhere on Spreadex (e.g. "1st
-  Touchdown Type") but haven't been found/scraped yet - a real, open gap,
-  not something silently faked here. These two stats are always
-  `populated: false`, contributing 0 expected count, until that gap is
-  closed.
-- defense_special has NO live-odds coverage at all right now (the one
-  market that existed for it, Sacks, was deliberately excluded in Phase 2
-  for pricing individual defenders this project's schema can't represent -
-  see scrape_spreadex_nfl_props.py). Every defense_special projection is
-  therefore 0 with data_confidence 0 until a real team-level defensive
-  data source is found. Reported plainly in the run summary below, not
-  hidden.
+- rushing_td and receiving_td individually still have NO signal (a real,
+  live "Score Any TD" market exists - see `anytime_td` below - but it
+  doesn't distinguish which type of TD, so the two stay at 0 each).
+  `anytime_td` (priced via PRICING_ALIAS, since rushing_td and
+  receiving_td are confirmed identical at 6pts) carries the real combined
+  signal instead - sourced from fantasyinfocentral.com's real, live
+  Caesars sportsbook line (found 2026-09-07 after two other real
+  anytime-TD sources, Oddschecker and Midnite, both actively blocked
+  automated access - see docs/data-and-weights.md for the full trail).
+  Spreadex itself still has no standalone rushing/receiving touchdown
+  market at all - worth rechecking closer to kickoff.
+- defense_special has NO player-level live-odds coverage (the one market
+  that existed for it, Sacks, was deliberately excluded in Phase 2 for
+  pricing individual defenders this project's schema can't represent - see
+  scrape_spreadex_nfl_props.py). Its projection is instead built from real
+  game-level odds already ingested for every fixture (RotoWire's spread +
+  total): the opponent's expected points is derived from those, then
+  turned into an expected points-allowed score via a Normal-distribution
+  approximation across FanTeam's real tiers (see stat_math.
+  points_allowed_distribution). This is genuinely a Fixture Quality signal,
+  not Live Odds - `per_layer.fixture_quality.populated` reflects that.
+  Individual defensive-play stats (sacks, turnovers, blocked kicks,
+  defensive/return TDs) still have no real data source and stay at 0 -
+  reported plainly in the run summary below, not hidden.
 
 RUN:
     python scripts/compute_projections.py [gameweek]
@@ -54,7 +62,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from env_utils import db_connect  # noqa: E402
-from stat_math import anytime_prob_to_expected_count, expected_value_from_points  # noqa: E402
+from stat_math import (  # noqa: E402
+    POINTS_ALLOWED_TIERS,
+    anytime_prob_to_expected_count,
+    expected_value_from_points,
+    points_allowed_distribution,
+)
 
 HORIZON = 1
 
@@ -67,7 +80,21 @@ LADDER_STAT_MAP = {
 }
 ANYTIME_STAT_MAP = {
     "passing_touchdowns": "passing_td",
+    # Real "Score Any TD" prop (rushing OR receiving, not split) - found
+    # 2026-09-07 on fantasyinfocentral.com after two live bookmaker-odds
+    # sources (Oddschecker, Midnite) both actively blocked automated
+    # access. Priced via PRICING_ALIAS below since rushing_td and
+    # receiving_td are confirmed identical (6pts each) in the real
+    # scoring rules - which bucket's rate is borrowed doesn't matter.
+    "anytime_td": "anytime_td",
 }
+
+# stat -> the scoring_rules stat whose rate actually prices it. Only
+# needed for a stat with no scoring_rules row of its own (anytime_td
+# genuinely doesn't distinguish rush vs. reception, so it has no single
+# real row to look up - see ANYTIME_STAT_MAP above for why rushing_td's
+# rate is a safe stand-in).
+PRICING_ALIAS = {"anytime_td": "rushing_td"}
 
 # Real statuses observed live from both sources (see migration 0004) ->
 # probability-of-playing prior. A first-pass calibration (documented as
@@ -138,11 +165,10 @@ def current_gameweek(cur, requested):
 
 def find_fixture_for_team(cur, team_id, gameweek):
     cur.execute(
-        "select id from fixtures where (home_team_id = %s or away_team_id = %s) and gameweek = %s",
+        "select id, home_team_id, away_team_id from fixtures where (home_team_id = %s or away_team_id = %s) and gameweek = %s",
         (team_id, team_id, gameweek),
     )
-    row = cur.fetchone()
-    return row[0] if row else None
+    return cur.fetchone()
 
 
 def lineup_probability(cur, player_id, fixture_id):
@@ -206,16 +232,63 @@ def compute_offense_player_stats(families):
             per_stat[stat] = {"expected_count": round(anytime_prob_to_expected_count(one_plus), 3), "populated": True}
         else:
             per_stat[stat] = {"expected_count": 0.0, "populated": False}
-    # Real, confirmed-live gap (2026-09-07) - see module docstring.
+    # rushing_td/receiving_td stay at 0 individually - the real signal
+    # (anytime_td, above) doesn't distinguish which type of TD, only that
+    # one happened. Still a real, confirmed gap for return_td and the
+    # smaller offense stats below - no market found for any of them yet.
     for stat in ("rushing_td", "receiving_td", "return_td", "interception_thrown", "fumble_lost", "two_point_conversion"):
         per_stat.setdefault(stat, {"expected_count": 0.0, "populated": False})
     return per_stat
 
 
+def opponent_expected_points(cur, fixture_id, team_id, home_team_id, away_team_id):
+    """Real market-derived opponent scoring expectation, from the same
+    game_odds rows RotoWire already gave us (spread + total). Standard
+    team-total split: home_expected = (total - home_spread) / 2,
+    away_expected = (total + home_spread) / 2 (our home_spread convention:
+    negative = home favored - confirmed against real data in
+    import_rotowire_lineups.py). Returns None if no real odds are posted
+    yet for this fixture - never guessed."""
+    cur.execute(
+        """
+        select home_spread, total_points_over_under from game_odds
+        where fixture_id = %s and home_spread is not null and total_points_over_under is not null
+        order by captured_at desc limit 1
+        """,
+        (fixture_id,),
+    )
+    row = cur.fetchone()
+    if row is None:
+        return None
+    home_spread, total = float(row[0]), float(row[1])
+    home_expected = (total - home_spread) / 2
+    away_expected = (total + home_spread) / 2
+    return away_expected if team_id == home_team_id else home_expected
+
+
+def compute_defense_special_stats(cur, fixture_id, team_id, home_team_id, away_team_id):
+    per_stat = {}
+    opponent_points = opponent_expected_points(cur, fixture_id, team_id, home_team_id, away_team_id)
+    if opponent_points is not None:
+        for stat, prob in points_allowed_distribution(opponent_points).items():
+            per_stat[stat] = {"expected_count": round(prob, 4), "populated": True}
+    else:
+        for stat, _low, _high in POINTS_ALLOWED_TIERS:
+            per_stat[stat] = {"expected_count": 0.0, "populated": False}
+    # Individual defensive-play stats (sacks, turnovers, blocked kicks,
+    # defensive/return TDs) - no real team-level data source found yet
+    # (the only market that existed, Sacks, prices individual defenders
+    # this schema can't represent - see scrape_spreadex_nfl_props.py).
+    for stat in ("sack", "interception", "fumble_recovery", "safety", "blocked_kick", "defensive_td", "return_td"):
+        per_stat[stat] = {"expected_count": 0.0, "populated": False}
+    return per_stat, opponent_points
+
+
 def price_stats(per_stat, applies_to, scoring_rules):
     total = 0.0
     for stat, info in per_stat.items():
-        points_per_unit = scoring_rules.get((applies_to, stat))
+        rate_stat = PRICING_ALIAS.get(stat, stat)
+        points_per_unit = scoring_rules.get((applies_to, rate_stat))
         if points_per_unit is None:
             info["points"] = 0.0
             continue
@@ -245,10 +318,11 @@ def main():
         written, no_fixture, defense_skipped = 0, 0, 0
 
         for player_id, team_id, position in players:
-            fixture_id = find_fixture_for_team(cur, team_id, gameweek)
-            if fixture_id is None:
+            fixture_row = find_fixture_for_team(cur, team_id, gameweek)
+            if fixture_row is None:
                 no_fixture += 1
                 continue
+            fixture_id, home_team_id, away_team_id = fixture_row
 
             # Always 1.0 here - a bye week (no fixture this gameweek) is
             # already filtered out by the `continue` above. Meaningful once
@@ -258,15 +332,22 @@ def main():
             weights_for_position = layer_weights.get((HORIZON, position), {})
 
             if position == "defense_special":
-                # No real live-odds coverage exists for this unit yet -
-                # see module docstring. Written honestly as an unpriced
-                # zero rather than skipped, so the gap is visible in the
-                # data itself, not just in a script comment.
-                per_stat = {}
-                total_points = 0.0
+                # No player-level bookmaker odds exist for this unit (see
+                # module docstring), but points-allowed - a real, large
+                # share of D/ST scoring - can be derived from the same
+                # real game_odds (spread + total) already ingested for
+                # every fixture: a heavily-favored team's opponent is
+                # priced to score fewer points, which this unit is
+                # rewarded for conceding fewer of. This is a real
+                # Fixture Quality signal, not a Live Odds one.
+                per_stat, opponent_points = compute_defense_special_stats(cur, fixture_id, team_id, home_team_id, away_team_id)
+                total_points = price_stats(per_stat, "defense_special", scoring_rules)
                 live_odds_populated = False
-                defense_skipped += 1
+                fixture_quality_populated = opponent_points is not None
+                if opponent_points is None:
+                    defense_skipped += 1
             else:
+                fixture_quality_populated = False
                 families = market_odds_by_family(cur, player_id, fixture_id)
                 per_stat = compute_offense_player_stats(families)
                 total_points = price_stats(per_stat, "offense", scoring_rules)
@@ -278,10 +359,10 @@ def main():
                 "lineup_status": {"probability": xmins, "status": status, "source": status_source},
                 "form": {"populated": False, "weight": weights_for_position.get("form")},
                 "fixture_quantity": {"populated": True, "value": fixture_quantity, "weight": weights_for_position.get("fixture_quantity")},
-                "fixture_quality": {"populated": False, "weight": weights_for_position.get("fixture_quality")},
+                "fixture_quality": {"populated": fixture_quality_populated, "weight": weights_for_position.get("fixture_quality")},
                 "live_odds": {"populated": live_odds_populated, "weight": weights_for_position.get("live_odds")},
             }
-            data_confidence = round(xmins * (1.0 if live_odds_populated else 0.0), 3)
+            data_confidence = round(xmins * (1.0 if (live_odds_populated or fixture_quality_populated) else 0.0), 3)
 
             cur.execute(
                 """
@@ -303,7 +384,7 @@ def main():
         print(
             f"Gameweek {gameweek}, horizon {HORIZON}: {written} projections written "
             f"(algorithm_version {algorithm_version_id}), {no_fixture} skipped (no fixture this gameweek), "
-            f"{defense_skipped} defense_special rows written with 0 live-odds coverage (known gap, see module docstring)."
+            f"{defense_skipped} defense_special row(s) with no real game_odds posted yet (fell back to 0)."
         )
     except Exception:
         conn.rollback()

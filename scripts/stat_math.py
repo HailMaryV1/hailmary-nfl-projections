@@ -25,6 +25,65 @@ Not a standalone script - imported by compute_projections.py.
 """
 import math
 
+# Real, commonly-observed NFL team-scoring standard deviation (team points
+# per game cluster roughly Normal around the market's own projected mean
+# with a spread of ~10 points) - a documented modeling assumption, not
+# measured from this project's own data yet (one gameweek of a brand-new
+# season isn't enough to fit a real variance from). Refine once real
+# predictions_and_actuals history exists - see feedback_calibration_layer_
+# discipline in project memory.
+POINTS_ALLOWED_SD = 10.0
+
+# FanTeam's real points-allowed tiers (scoring_rules stat, (low, high)
+# inclusive real point range - high=None means unbounded).
+POINTS_ALLOWED_TIERS = [
+    ("points_allowed_0", 0, 0),
+    ("points_allowed_1_6", 1, 6),
+    ("points_allowed_7_13", 7, 13),
+    ("points_allowed_14_20", 14, 20),
+    ("points_allowed_21_27", 21, 27),
+    ("points_allowed_28_34", 28, 34),
+    ("points_allowed_35_plus", 35, None),
+]
+
+
+def normal_cdf(x, mean, sd):
+    return 0.5 * (1 + math.erf((x - mean) / (sd * math.sqrt(2))))
+
+
+def points_allowed_distribution(mean_points, sd=POINTS_ALLOWED_SD):
+    """Real opponent-points market data (mean_points, from game_odds'
+    spread + total) turned into a probability-weighted expectation across
+    FanTeam's real points-allowed tiers, via a Normal approximation with
+    continuity correction - the same tail-probability idea as
+    expected_value_from_points below, applied to a discrete scoring
+    ladder instead of a continuous yardage curve. Returns
+    {tier_stat: probability} for every real tier, summing to 1.0."""
+    distribution = {}
+    for stat, low, high in POINTS_ALLOWED_TIERS:
+        lo_edge = low - 0.5
+        hi_edge = math.inf if high is None else high + 0.5
+        p_hi = 1.0 if math.isinf(hi_edge) else normal_cdf(hi_edge, mean_points, sd)
+        p_lo = normal_cdf(lo_edge, mean_points, sd)
+        distribution[stat] = max(0.0, p_hi - p_lo)
+
+    # Real NFL points scored can't go below 0, but the Normal approximation
+    # puts some mass there anyway - renormalize so the 7 real tiers still
+    # sum to 1.0 rather than silently losing that probability (material at
+    # low means: ~9% at a 13-point mean).
+    total = sum(distribution.values())
+    if total > 0:
+        distribution = {stat: p / total for stat, p in distribution.items()}
+    return distribution
+
+
+def american_to_decimal(american_odds):
+    """Real US-format odds ('-335', '+130') -> decimal odds. Standard
+    conversion: negative means "bet this much to win 100", positive means
+    "this much won per 100 staked"."""
+    o = float(american_odds)
+    return 1 + (100 / abs(o)) if o < 0 else 1 + (o / 100)
+
 
 def anytime_prob_to_expected_count(p):
     p = max(0.0, min(0.99, p))

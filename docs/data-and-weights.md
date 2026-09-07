@@ -204,7 +204,62 @@ hypothetical.
      market for either (only Passing Touchdowns). A real anytime-TD market
      likely exists elsewhere on Spreadex (e.g. "1st Touchdown Type",
      spotted but not yet scraped) - open follow-up, not silently faked.
-  5. `defense_special` has zero live-odds coverage (Sacks was excluded in
-     Phase 2 for pricing individuals this schema can't represent) - every
-     unit projects to a plain, visible 0.0 until a real team-level
-     defensive data source is found, rather than a fabricated placeholder.
+  4b. **Closed same-day** (2026-09-07, user's own follow-up: "Lets find the
+     Anytime TD market"). Real trail, each step verified before moving on:
+     - Spreadex: confirmed live it has NO standalone anytime-TD market
+       posted yet for Week 1 (checked every tab on a fixture page plus all
+       5 Weekly Player Markets tabs) - only referenced in generic SEO
+       boilerplate text, not an actual live panel.
+     - Oddschecker: real, live "Anytime Touchdown Scorer" market found and
+       fully inspected (real per-player fractional odds via a genuine
+       `/api/markets/v2/all-odds` JSON endpoint) - but a plain headless
+       Playwright session was actively Cloudflare-blocked ("Attention
+       Required" page), confirmed by direct test, not assumed.
+     - Midnite (a real GB-licensed operator): same real market exists, same
+       outcome - AWS WAF actively blocked headless Playwright ("Midnite is
+       unavailable" soft-block).
+     - FanDuel: blocked by this environment's own browsing policy before
+       any technical check was even possible (a live wagering platform).
+     - jedibets.com: real, unblocked, but is a historical per-game
+       TD-scoring RATE ("4 of last 10 games, 2025 season"), not a live
+       market probability - user correctly rejected this as inconsistent
+       with the project's real-live-odds discipline ("hold up if thats not
+       odds why we using it??"). Built, then fully removed (scraper,
+       importer, and the 125 imported rows) rather than left half-used.
+     - **fantasyinfocentral.com**: real, live, unblocked - confirmed via a
+       direct Playwright test with zero bot-protection cookies. Displays a
+       real, live Caesars sportsbook line (confirmed: every row's
+       bookmaker attribution reads "Caesars") as editorial content, one
+       page covering all 16 real Week 1 fixtures at once (no per-fixture
+       navigation needed, unlike every other source in this project).
+       `scripts/scrape_fic_anytime_td.py` + `scripts/import_fic_anytime_td.py`
+       - 105/105 real players matched with zero unmatched names on the
+       first real run (the earlier generational-suffix and same-team-
+       surname fixes carried over directly).
+     - Wired into `compute_projections.py` as a new `anytime_td` stat,
+       priced via the `rushing_td` scoring rate (confirmed identical to
+       `receiving_td` at 6pts - the market doesn't distinguish which type
+       of TD, so it doesn't matter which rate is borrowed). Verified the
+       full pipeline against real numbers: Jahmyr Gibbs' real -335 odds ->
+       1.47 expected TDs, matching the stored value exactly; Josh Allen's
+       total rose from 18.4 to 22.0 (his real rushing-TD upside, previously
+       invisible); Gibbs became the week's top-projected RB, matching his
+       real status as the market's TD favorite.
+  5. `defense_special` had zero coverage - **closed same-day** (2026-09-07,
+     user's own suggestion): "defense special teams get good points for
+     not conceding so maybe projection could be based on the likelihood
+     of the opponent that week scoring highly or low". Implemented as a
+     real Fixture Quality signal: the opponent's expected points is
+     derived from the same RotoWire game_odds (spread + total) already
+     ingested (`home_expected = (total - home_spread) / 2`, confirmed
+     against real data), then turned into an expected points-allowed
+     score via a Normal-distribution approximation across FanTeam's real
+     scoring tiers (`stat_math.points_allowed_distribution`, sd=10 - a
+     documented, commonly-observed NFL scoring-variance assumption, not
+     measured from this project's own data yet). Verified against real
+     numbers: Jacksonville's D/ST (facing Cleveland, a -420 moneyline
+     underdog) topped the real projection list; Arizona's (facing a
+     10-point-favorite Chargers team) sat at the bottom - correct
+     direction. Individual defensive-play stats (sacks, turnovers, blocked
+     kicks, defensive/return TDs) still have no real data source and stay
+     at 0 - a real, separate, still-open gap.
