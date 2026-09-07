@@ -1,4 +1,6 @@
 .env
+.env.local
+.env.*.local
 *_raw.json
 __pycache__/
 *.pyc

@@ -114,11 +114,18 @@ games get no adjustment) sourced from RotoWire.
 ## Status
 
 Phase 0 (scaffolding), Phase 1 (schema, 32 real teams), Phase 2 (data
-ingestion - FanTeam, RotoWire, Spreadex) and Phase 3 v1 (projection engine)
-done. Pipeline: `python scripts/refresh_nfl.py` then
-`python scripts/compute_projections.py`. Real, honestly-documented gaps
-remain in Phase 3 v1 - see compute_projections.py's own module docstring
-and docs/data-and-weights.md before assuming something's missing by
-accident (horizon 1 only, no rating yet, no rushing/receiving TD odds
-source found yet, defense_special unprojectable yet). Phase 4 (settings/
-admin UI) and Phase 5 (frontend) not started.
+ingestion - FanTeam, RotoWire, Spreadex, FantasyInfoCentral anytime-TD) and
+Phase 3 v1 (projection engine, incl. real anytime-TD odds and a real
+defense/special-teams points-allowed projection) done. Pipeline:
+`python scripts/refresh_nfl.py` then `python scripts/compute_projections.py`.
+Real, honestly-documented gaps remain - see compute_projections.py's own
+module docstring and docs/data-and-weights.md (horizon 1 only, no rating
+yet, individual defensive-play stats still unprojected).
+
+Phase 5 v1 (public frontend) done: live at
+`nfl.hailmaryfantasysports.co.uk` (Vercel, auto-deploys on push to main).
+Real projections pool (`/`, position-filterable, mobile card list + desktop
+table) and a real per-player explainability page (`/players/[id]`) showing
+the actual per_stat/per_layer breakdown - "Not yet available" shown
+honestly wherever a layer has no real data, never a fabricated number.
+Phase 4 (settings/admin UI) not started.

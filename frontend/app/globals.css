@@ -28,6 +28,14 @@
   --color-navy-300: #a8b8cc;
   --color-navy-200: #cddaeb;
   --color-navy-100: #eef2f8;
+
+  /* Real position colour code, used site-wide (table position tags,
+     player cards) - a display convention, not derived from any source. */
+  --color-pos-qb: #38bdf8;
+  --color-pos-rb: #34d399;
+  --color-pos-wr: #fb7185;
+  --color-pos-te: #fbbf24;
+  --color-pos-dst: #a78bfa;
 }
 
 body {

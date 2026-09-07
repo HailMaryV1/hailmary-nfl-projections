@@ -263,3 +263,38 @@ hypothetical.
      direction. Individual defensive-play stats (sacks, turnovers, blocked
      kicks, defensive/return TDs) still have no real data source and stay
      at 0 - a real, separate, still-open gap.
+
+## 2026-09-07 - Phase 5 v1: public frontend live
+
+- Real projections pool at `/` (Server Component, direct Supabase query -
+  no client-side fetch/loading-spinner needed for the initial view) -
+  position filter tabs, mobile card list (same reason every other list
+  view in the Hail Mary portfolio needs one - a table overflows badly
+  under `sm:`), desktop table. Verified against the live DB: top-ranked
+  players and exact point values match the values already spot-checked
+  via direct SQL earlier in Phase 3.
+- Real per-player page at `/players/[id]` - the "how this was built"
+  explainability view the original design called for, done from day one
+  rather than deferred: shows each of the five layers' real state
+  (`Live` vs `Not yet available`, never invented) plus the full per-stat
+  breakdown. Verified the numbers are internally consistent, not just
+  plausible-looking: Justin Herbert's displayed 13.03 + 9.79 + 2.56 sums
+  to exactly his displayed 25.4 total; Jacksonville's D/ST page correctly
+  shows `Fixture Quality: Live` / `Live Odds: Not yet available` (matching
+  the real architecture decision from the points-allowed work above, not
+  a mislabelled layer).
+- **Real gap caught before shipping**: the frontend needs its OWN
+  `frontend/.env.local` (Next.js only reads `NEXT_PUBLIC_*` vars from
+  there, or real Vercel env vars) - the repo-root `.env` the Python
+  scripts use is a separate file Next.js never reads. Missing this
+  produced a real, reproducible `supabaseUrl is required` 500 on every
+  page load until fixed.
+- **Real gap caught in the same pass**: root `.gitignore` only listed
+  `.env`, not `.env.local` - the new frontend env file (holding the real
+  service-role secret) would have been committed on the next `git add -A`
+  had this not been caught immediately. Fixed before the file was ever
+  staged.
+- Deployed to `nfl.hailmaryfantasysports.co.uk` via Vercel (user's own
+  GitHub push + Vercel project + Hostinger CNAME, walked through step by
+  step) - confirmed live and rendering the real placeholder content
+  before this frontend work replaced it with the real pool.
