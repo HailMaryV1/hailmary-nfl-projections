@@ -114,3 +114,48 @@ hypothetical.
   expected, permanent, harmless gap) plus one real player (Keenan Allen)
   confirmed genuinely absent from FanTeam's current player pool - not a
   matching bug.
+
+## 2026-09-07 - Phase 2 (part 3): Spreadex NFL player props live
+
+- `scripts/scrape_spreadex_nfl_props.py` - real, working end to end against
+  Spreadex's real "Weekly Player Markets" page. Confirmed live: unlike
+  Dream Team's per-fixture Spreadex scrape, this ONE page carries all 16
+  real fixtures' player markets across 5 real tabs (Passing, Rushing +
+  Receiving, Rushing, Receiving, Sacks) - no per-fixture navigation needed.
+  Real DOM boundary confirmed by inspection: `sc-panel` elements with no
+  nested `sc-panel` are the true leaf market panels (an outer wrapper
+  `sc-panel` duplicates the same header text and inflates counts if not
+  filtered out).
+- Two real button label shapes found and handled: a ladder
+  ("{Player} - {N}+ Price Button") and an Over/Under pair
+  ("{Player} Over/Under {X} Price Button"). Each rung is stored as its own
+  `player_market_odds` row (market e.g. `passing_yards_225plus`,
+  `passing_yards_over_232.5`) with the raw implied probability
+  (1/decimal_odds) - fitting an expected value from the ladder is Phase 3's
+  job, not this script's ("never fabricate" - store what's observed).
+- Two real bugs found and fixed during verification, both against actual
+  observed data, not hypothetical:
+  1. Spreadex renders SOME team codes in Title Case within the same header
+     text ("Atl @ Pit", "Bal @ Ind") while others stay fully capitalised
+     ("NE @ Sea" - "Sea" itself is Title Case too) - no consistent rule.
+     The header regex was case-sensitive and silently dropped ~90% of real
+     rows (508 buttons seen, only 56 written) with no error. Fixed by
+     matching case-insensitively and upper-casing before comparing against
+     our all-caps `teams.abbr`.
+  2. "Player Passing and Rushing Yards" appears as the same real panel
+     under both the Rushing and Rushing + Receiving tabs - scraping both
+     tabs double-inserted it. Fixed with a per-run `seen_headers` set
+     (a genuinely new observation from a LATER run still gets its own row).
+- **Sacks tab deliberately excluded**, not just under-matched: it prices
+  INDIVIDUAL defensive players, but this project's player pool only has
+  the team-level `defense_special` unit (FanTeam's real ruleset has no
+  individual defenders at all). Verified this isn't just a coverage gap -
+  it produced an actual false-positive match (an individual defender's
+  "Kyle Williams" silently matched our unrelated offensive WR of the same
+  name). Scraping it risks wrong attributions, not just missing data, so
+  it's excluded outright rather than "fixed" - there is no correct match
+  target for this market in this schema.
+- Final verified state: 2542 real `player_market_odds` rows, zero
+  duplicates, zero known false positives, across passing/rushing/receiving
+  yardage ladders, TD ladders, completions/attempts, longest
+  completion/reception, and O/U lines.

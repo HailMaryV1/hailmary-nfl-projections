@@ -113,6 +113,8 @@ games get no adjustment) sourced from RotoWire.
 
 ## Status
 
-Phase 0 (repo scaffolding) and Phase 1 (database schema, 32 real teams
-seeded) done. No scrapers or projection engine written yet - that's Phase 2.
-See docs/data-and-weights.md for the live build log as each phase lands.
+Phase 0 (repo scaffolding), Phase 1 (database schema, 32 real teams
+seeded), and Phase 2 (data ingestion - FanTeam, RotoWire, Spreadex, all
+real and verified) done. Single entrypoint: `python scripts/refresh_nfl.py`.
+No projection engine yet - that's Phase 3. See docs/data-and-weights.md for
+the live build log as each phase lands.
