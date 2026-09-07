@@ -113,8 +113,12 @@ games get no adjustment) sourced from RotoWire.
 
 ## Status
 
-Phase 0 (repo scaffolding), Phase 1 (database schema, 32 real teams
-seeded), and Phase 2 (data ingestion - FanTeam, RotoWire, Spreadex, all
-real and verified) done. Single entrypoint: `python scripts/refresh_nfl.py`.
-No projection engine yet - that's Phase 3. See docs/data-and-weights.md for
-the live build log as each phase lands.
+Phase 0 (scaffolding), Phase 1 (schema, 32 real teams), Phase 2 (data
+ingestion - FanTeam, RotoWire, Spreadex) and Phase 3 v1 (projection engine)
+done. Pipeline: `python scripts/refresh_nfl.py` then
+`python scripts/compute_projections.py`. Real, honestly-documented gaps
+remain in Phase 3 v1 - see compute_projections.py's own module docstring
+and docs/data-and-weights.md before assuming something's missing by
+accident (horizon 1 only, no rating yet, no rushing/receiving TD odds
+source found yet, defense_special unprojectable yet). Phase 4 (settings/
+admin UI) and Phase 5 (frontend) not started.

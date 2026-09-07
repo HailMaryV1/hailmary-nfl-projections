@@ -159,3 +159,52 @@ hypothetical.
   duplicates, zero known false positives, across passing/rushing/receiving
   yardage ladders, TD ladders, completions/attempts, longest
   completion/reception, and O/U lines.
+
+## 2026-09-07 - Phase 3 (v1): projection engine live
+
+- `scripts/stat_math.py` + `scripts/compute_projections.py` - real,
+  working, verified end to end for gameweek 1 / horizon 1. 603 projections
+  written, algorithm_version 1 created (first snapshot of scoring_rules +
+  layer_weights).
+- Two real estimators, both standard and derived from the actual observed
+  probabilities, not invented: `expected_value_from_points` (tail-sum
+  integral of a real survival curve built from ladder rungs + the O/U
+  line, trapezoidal between points, geometric-decay tail beyond the
+  highest rung) for yardage/reception-count stats; `anytime_prob_to_
+  expected_count` (the same Poisson-process formula already proven in
+  Dream Team's Spreadex scraper) for the passing-TD ladder.
+- **Real bug caught before it shipped**: the Over/Under regex didn't
+  distinguish "_over_X" from "_under_X" - both would have fed into the
+  same points list as if both were real P(X >= X) observations, when
+  "under" is the complement, not another survival-curve point. Fixed by
+  matching them separately and only using "over".
+- Sanity-checked against real numbers: Josh Allen's estimated 222.4
+  expected passing yards lands within 3 yards of Spreadex's own posted
+  219.5 O/U line (an independent cross-check, not circular - the O/U line
+  wasn't the only input). Top-10 QBs by total_points are all real,
+  plausible starters, ranked by matchup/market strength rather than just
+  echoing FanTeam's price. Injured/inactive players correctly project to
+  0.0. Position averages match expected real-world shape (QBs highest and
+  most consistent; RB/WR/TE lower and more spread out, reflecting a
+  backup-heavy real player pool).
+- **Known, deliberately undisguised gaps in this v1**, all documented in
+  the script's own module docstring rather than only here:
+  1. Only horizon 1 is computed - horizons 2/3/5 need future-gameweek
+     fixtures (byes, opponent matchups) not yet ingested.
+  2. `rating` (1-10 absolute scale) is left NULL - calibrating it needs a
+     real measured distribution from a season that's one gameweek old.
+     Writing a number now would be invented, not measured.
+  3. Form and Fixture Quality layers are `populated: false` for every
+     player - both need real prior-gameweek stats/defensive performance
+     that doesn't exist yet in a brand-new season. `total_points` this
+     early is effectively 100% Live-Odds-driven - correct given the real
+     data available, not a defect.
+  4. `rushing_td`/`receiving_td` have zero live-odds signal - confirmed
+     live that Spreadex's Weekly Player Markets page has no standalone
+     market for either (only Passing Touchdowns). A real anytime-TD market
+     likely exists elsewhere on Spreadex (e.g. "1st Touchdown Type",
+     spotted but not yet scraped) - open follow-up, not silently faked.
+  5. `defense_special` has zero live-odds coverage (Sacks was excluded in
+     Phase 2 for pricing individuals this schema can't represent) - every
+     unit projects to a plain, visible 0.0 until a real team-level
+     defensive data source is found, rather than a fabricated placeholder.
