@@ -1,0 +1,10 @@
+.env
+*_raw.json
+__pycache__/
+*.pyc
+*.json.bak
+node_modules/
+.next/
+.vercel/
+*.tsbuildinfo
+.DS_Store
