@@ -50,3 +50,29 @@ hypothetical.
 - Seeded all 32 real NFL teams (`scripts/seed_teams.py`) - abbreviations
   confirmed by direct observation against RotoWire's real Week 1 lineups
   page, not guessed.
+
+## 2026-09-07 - Phase 2 (part 1): FanTeam ingestion live
+
+- `scripts/scrape_fanteam.py` + `scripts/import_fanteam.py` - real, working
+  end to end. 603 real players, 16 real fixtures, 0 skipped/unmatched.
+- Confirmed live: FanTeam/ScoutGG's `realPlayerId` is a stable per-person
+  key across gameweeks (unlike the endpoint's own composite per-row `id`),
+  so player matching is direct on external_id - no surname-matching
+  cascade needed here, unlike Dream Team's importer (which has to cope with
+  Dream Team's own id reissues).
+  players endpoint's response also carries real fixtures (`realMatches`)
+  and teams (`realTeams`) in the SAME call - no separate authenticated
+  fixtures request needed, unlike the sibling dreamteam-scraper repo's
+  football tournament (which needs a Playwright+bearer-token call for
+  fixtures). One theory disproven: assumed this might also be needed here -
+  it isn't.
+- Confirmed real home/away convention by cross-referencing every one of
+  Week 1's 16 real games against RotoWire's own "Away @ Home" listing:
+  `realMatches[].realTeamIds` is `[home_team_id, away_team_id]`.
+- Defense/Special Teams comes through as one row per real team
+  (`position: "defense_special"`, `realPlayer.lastName: "DST"`,
+  `firstName: null`) - named "{Team Name} D/ST" at import time rather than
+  storing the literal "DST" string.
+- `player_lineup_status` gets a row per player per import run from FanTeam's
+  own `lineup` field (source `'fanteam'`) - RotoWire will add a second,
+  independent observation (source `'rotowire'`) once that scraper is built.
