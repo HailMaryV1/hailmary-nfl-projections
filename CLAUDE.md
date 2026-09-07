@@ -113,6 +113,6 @@ games get no adjustment) sourced from RotoWire.
 
 ## Status
 
-Phase 0 (repo scaffolding, DB connection wired) - in progress. No schema,
-scrapers, or projection engine written yet. See docs/data-and-weights.md for
-the live build log as each phase lands.
+Phase 0 (repo scaffolding) and Phase 1 (database schema, 32 real teams
+seeded) done. No scrapers or projection engine written yet - that's Phase 2.
+See docs/data-and-weights.md for the live build log as each phase lands.
