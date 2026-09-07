@@ -76,3 +76,41 @@ hypothetical.
 - `player_lineup_status` gets a row per player per import run from FanTeam's
   own `lineup` field (source `'fanteam'`) - RotoWire will add a second,
   independent observation (source `'rotowire'`) once that scraper is built.
+
+## 2026-09-07 - Phase 2 (part 2): RotoWire ingestion live
+
+- `scripts/scrape_rotowire_lineups.py` (Playwright, real DOM selectors -
+  `.lineup.is-nfl` > `.lineup__box`, confirmed live by manual inspection)
+  + `scripts/import_rotowire_lineups.py` - real, working end to end. 191
+  real lineup_status rows, 16 real game_odds rows, 16 real fixture_weather
+  rows from the first live run.
+- Fixture matching has no explicit calendar date to key off (RotoWire only
+  gives a day abbreviation + time, no year/month) - matched instead on the
+  real (home_abbr, away_abbr) team pair against fixtures already populated
+  by FanTeam, picking the soonest upcoming match. Real home/away spread
+  sign and moneyline side cross-validated correctly against FanTeam's own
+  independent home/away assignment (e.g. CAR home +3.0 underdog matches
+  CHI away -150 moneyline favorite).
+- Real cross-source divergence, exactly the reason two lineup-status
+  sources are worth having: Christian McCaffrey showed FanTeam lineup
+  `'expected'` but RotoWire `'questionable'` (a real "Q" tag) - RotoWire
+  is catching an in-week injury designation FanTeam's own field hadn't
+  reflected yet.
+- Two real name-matching gaps found and fixed in `scripts/name_matching.py`
+  (NFL-specific, added only to this project's own copy of the file, not
+  the shared Dream Team original):
+  1. FanTeam's real full names carry generational suffixes RotoWire's
+     display names drop entirely ("Marvin Harrison Jr." vs "Marvin
+     Harrison", "Deebo Samuel Sr." vs "Deebo Samuel", "James Cook III" vs
+     "James Cook") - `_strip_generational_suffix()` now strips a trailing
+     Jr/Sr/II/III/IV/V token before computing the surname key.
+  2. Same-team, same-surname collisions (Minnesota real-rosters both
+     "Aaron Jones Sr." and "Jeshaun Jones") - `resolve_player_id()` now
+     adds a first-initial tiebreak when the surname key alone is
+     ambiguous, same pattern Dream Team's fuller import cascade already
+     uses.
+- Remaining unmatched names after both fixes are Kickers (FanTeam has no
+  Kicker position at all, so RotoWire's real K slot can never match - an
+  expected, permanent, harmless gap) plus one real player (Keenan Allen)
+  confirmed genuinely absent from FanTeam's current player pool - not a
+  matching bug.
