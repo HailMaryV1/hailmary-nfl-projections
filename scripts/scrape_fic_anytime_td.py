@@ -53,16 +53,39 @@ EXTRACT_JS = """
 
 
 def main():
+    # Real, confirmed-live gap (2026-09-08): this script works reliably
+    # from a real machine but failed on its first GitHub Actions run with
+    # no diagnostic detail (the workflow log only showed a generic exit
+    # 1). Every diagnostic below exists specifically to answer "was this a
+    # bot-block page (matching Oddschecker/Midnite's pattern), a network
+    # timeout, or a real site-structure change" the NEXT time this fails
+    # in CI - printed to stdout so it shows up in the workflow's own log,
+    # not hidden in a file nothing reads.
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        page.goto(URL, wait_until="networkidle", timeout=30000)
-        page.wait_for_timeout(2000)
-        rows = page.evaluate(EXTRACT_JS)
-        browser.close()
+        try:
+            page.goto(URL, wait_until="networkidle", timeout=45000)
+            page.wait_for_timeout(2000)
+            rows = page.evaluate(EXTRACT_JS)
+        except Exception as e:
+            print(f"[diagnostic] navigation/evaluation raised: {e}")
+            print(f"[diagnostic] final URL: {page.url}")
+            print(f"[diagnostic] title: {page.title()}")
+            print(f"[diagnostic] body text (first 500 chars): {page.inner_text('body')[:500]!r}")
+            browser.close()
+            raise
+        finally:
+            pass
 
-    if not rows:
-        raise SystemExit("No rows parsed - page structure may have changed.")
+        if not rows:
+            print(f"[diagnostic] final URL: {page.url}")
+            print(f"[diagnostic] title: {page.title()}")
+            print(f"[diagnostic] body text (first 500 chars): {page.inner_text('body')[:500]!r}")
+            browser.close()
+            raise SystemExit("No rows parsed - page structure may have changed, or the page didn't load as expected (see diagnostics above).")
+
+        browser.close()
 
     RAW_OUT.write_text(json.dumps(rows, indent=2))
     print(f"{len(rows)} real anytime-TD prop rows -> {RAW_OUT}")
