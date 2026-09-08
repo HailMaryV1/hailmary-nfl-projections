@@ -4,7 +4,8 @@ import SiteHeader from "../../SiteHeader";
 import { createPublicClient } from "@/lib/supabaseClient";
 import { positionLabel } from "@/lib/positions";
 
-const HORIZON = 1;
+const HORIZONS = [1, 2, 3, 5];
+const HORIZON_LABELS: Record<number, string> = { 1: "This Week", 2: "Next 2", 3: "Next 3", 5: "Next 5" };
 
 const STAT_LABELS: Record<string, string> = {
   passing_yards: "Passing Yards", passing_td: "Passing TDs", rushing_yards: "Rushing Yards",
@@ -27,9 +28,10 @@ function statLabel(stat: string): string {
   return STAT_LABELS[stat] ?? stat;
 }
 
-export default async function PlayerPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string }> }) {
+export default async function PlayerPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ from?: string; horizon?: string }> }) {
   const { id } = await params;
-  const { from } = await searchParams;
+  const { from, horizon: horizonParam } = await searchParams;
+  const horizon = HORIZONS.includes(Number(horizonParam)) ? Number(horizonParam) : 1;
   const supabase = createPublicClient();
 
   const { data: player, error: playerError } = await supabase
@@ -47,7 +49,7 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
     .from("projections")
     .select("gameweek, total_points, rating, per_stat, per_layer, data_confidence, algorithm_version_id")
     .eq("player_id", id)
-    .eq("horizon", HORIZON)
+    .eq("horizon", horizon)
     .order("algorithm_version_id", { ascending: false })
     .order("gameweek", { ascending: false })
     .limit(1)
@@ -70,6 +72,14 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
   }
 
   const backHref = from ? `/${from.replace(/^\/+/, "")}` : "/";
+  const horizonHref = (h: number) => {
+    const query = new URLSearchParams();
+    if (h !== 1) query.set("horizon", String(h));
+    if (from) query.set("from", from);
+    const qs = query.toString();
+    return qs ? `/players/${id}?${qs}` : `/players/${id}`;
+  };
+  const gameweekLabel = projection ? (horizon === 1 ? `GW${projection.gameweek}` : `GW${projection.gameweek}-${projection.gameweek + horizon - 1}`) : null;
 
   return (
     <>
@@ -92,9 +102,23 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
               <div className="font-[family-name:var(--font-cond)] text-4xl font-extrabold tabular-nums text-sky-300">
                 {Number(projection.total_points).toFixed(1)}
               </div>
-              <div className="text-xs uppercase tracking-wide text-navy-500">Projected Points · GW{projection.gameweek}</div>
+              <div className="text-xs uppercase tracking-wide text-navy-500">Projected Points · {gameweekLabel}</div>
             </div>
           )}
+        </div>
+
+        <div className="mt-3 flex flex-wrap gap-1">
+          {HORIZONS.map((h) => (
+            <Link
+              key={h}
+              href={horizonHref(h)}
+              className={`rounded-full px-3.5 py-1.5 font-[family-name:var(--font-cond)] text-sm font-bold uppercase tracking-wide ${
+                h === horizon ? "bg-sky-500 text-navy-950" : "bg-navy-900 text-navy-400 hover:bg-navy-800"
+              }`}
+            >
+              {HORIZON_LABELS[h]}
+            </Link>
+          ))}
         </div>
 
         {!projection ? (
@@ -111,10 +135,14 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
                       <div className="mt-1 text-sm text-navy-100">
                         {info.status ?? "unknown"} <span className="text-navy-500">({Math.round((info.probability ?? 0) * 100)}%)</span>
                       </div>
+                    ) : !info.populated ? (
+                      <div className="mt-1 text-sm text-navy-500">Not yet available</div>
+                    ) : layer === "fixture_quantity" && info.value !== undefined ? (
+                      <div className="mt-1 text-sm text-navy-100">{Math.round(info.value * 100)}% real games</div>
+                    ) : layer === "fixture_quality" && info.value !== undefined && info.value !== null ? (
+                      <div className="mt-1 text-sm text-navy-100">avg ×{info.value.toFixed(2)} difficulty</div>
                     ) : (
-                      <div className="mt-1 text-sm text-navy-100">
-                        {info.populated ? "Live" : <span className="text-navy-500">Not yet available</span>}
-                      </div>
+                      <div className="mt-1 text-sm text-navy-100">Live</div>
                     )}
                   </div>
                 ))}

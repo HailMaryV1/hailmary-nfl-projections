@@ -39,12 +39,14 @@ function positionColorVar(position: string): string {
   return map[position] ?? "--color-navy-300";
 }
 
-export default function RatingsTable({ players }: { players: PlayerRow[] }) {
+export default function RatingsTable({ players, horizon }: { players: PlayerRow[]; horizon: number }) {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("ALL");
 
   const filtered = useMemo(() => {
     return filter === "ALL" ? players : players.filter((p) => p.position === filter);
   }, [players, filter]);
+
+  const playerHref = (playerId: number) => (horizon === 1 ? `/players/${playerId}` : `/players/${playerId}?horizon=${horizon}`);
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
@@ -69,7 +71,7 @@ export default function RatingsTable({ players }: { players: PlayerRow[] }) {
       <ul className="flex flex-col divide-y divide-navy-800 sm:hidden">
         {filtered.map((p, i) => (
           <li key={p.playerId}>
-            <Link href={`/players/${p.playerId}`} className="flex items-center justify-between gap-3 py-2.5">
+            <Link href={playerHref(p.playerId)} className="flex items-center justify-between gap-3 py-2.5">
               <div className="flex min-w-0 items-center gap-2">
                 <span className="w-5 shrink-0 text-right font-mono text-xs text-navy-500">{i + 1}</span>
                 <div className="min-w-0">
@@ -97,7 +99,7 @@ export default function RatingsTable({ players }: { players: PlayerRow[] }) {
               <th className="py-2 pr-3 font-medium">Team</th>
               <th className="py-2 pr-3 font-medium">Opp</th>
               <th className="py-2 pr-3 text-right font-medium">Price</th>
-              <th className="py-2 pr-3 text-right font-medium">Proj Pts</th>
+              <th className="py-2 pr-3 text-right font-medium">{horizon === 1 ? "Proj Pts" : `Proj Pts (${horizon}wk)`}</th>
             </tr>
           </thead>
           <tbody>
@@ -105,7 +107,7 @@ export default function RatingsTable({ players }: { players: PlayerRow[] }) {
               <tr key={p.playerId} className="border-b border-navy-900 hover:bg-navy-900/60">
                 <td className="py-2 pr-3 font-mono text-xs text-navy-500">{i + 1}</td>
                 <td className="py-2 pr-3">
-                  <Link href={`/players/${p.playerId}`} className="flex items-center gap-2">
+                  <Link href={playerHref(p.playerId)} className="flex items-center gap-2">
                     <PositionTag position={p.position} />
                     <span className="font-medium text-navy-100 hover:text-sky-300">{p.name}</span>
                   </Link>

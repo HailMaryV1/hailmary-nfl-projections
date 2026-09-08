@@ -477,3 +477,21 @@ hypothetical.
   visible, not hidden inside a single number), and `lineup_status` is
   carried forward from horizon 1 as a documented simplifying assumption
   (a real per-week injury forecast for future weeks doesn't exist).
+
+## 2026-09-08 - Frontend: real horizon selector
+
+- Added a horizon selector (This Week / Next 2 / Next 3 / Next 5) to both
+  `/` and `/players/[id]`, matching the Link-based query-param pattern
+  already used elsewhere in this project rather than client state, since
+  the horizon determines which server-side data to fetch. The player
+  page's "How this was built" cards now surface the real underlying
+  numbers for a multi-week view instead of a flat "Live" - the actual
+  average fixture-quality multiplier applied (`avg x0.92 difficulty`) and
+  the real fraction of the window that was actual games vs. a bye
+  (`100% real games`).
+- Verified end to end in a real browser, both list and detail views,
+  offense and defense: Jacksonville's D/ST 5-week page shows a per-stat
+  sum (4.43+3.71+1.31+0.55+0.00-0.45-0.62 = 8.93) matching its own
+  displayed total exactly; the list view's Week-5 rankings visibly
+  reshuffle based on real schedule strength, not just repeating the
+  Week-1 order scaled by a constant.
