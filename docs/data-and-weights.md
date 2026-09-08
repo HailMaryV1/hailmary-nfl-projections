@@ -298,3 +298,38 @@ hypothetical.
   GitHub push + Vercel project + Hostinger CNAME, walked through step by
   step) - confirmed live and rendering the real placeholder content
   before this frontend work replaced it with the real pool.
+
+
+## 2026-09-08 - Phase 4 v1: admin settings UI live
+
+- Real Supabase-Auth-gated `/admin` - `frontend/proxy.ts` (Next.js 16's
+  middleware.ts rename, same convention as Dream Team Projections) redirects
+  any unauthenticated `/admin/*` request to `/login`. Two real editors:
+  - **Scoring Rules** - every row from migration 0005, editable inline,
+    grouped by offense/defense_special.
+  - **Layer Weights** - horizon x position tabs (20 combos) rather than all
+    80 rows at once, with a live effective-split sum shown (green at 1.00,
+    amber otherwise) so a save can't silently leave weights not summing to
+    1 without at least a visible warning.
+  - Both write via Server Actions using the real authenticated session
+    (`lib/supabaseServerClient.ts`), and log every real change to
+    `activity_log` with the actual old/new values and the signed-in
+    admin's email as `actor` - shown on the new `/admin` dashboard's
+    "Recent activity" list.
+- **Verified the security model actually works, not just that the UI
+  hides the buttons**: sent a raw unauthenticated PATCH to
+  `scoring_rules` via the public anon key, got back a real HTTP 200 with
+  an empty result array (Postgres RLS's real behaviour for a policy that
+  evaluates false - not a 403, a silent "0 rows matched"), then confirmed
+  directly against the DB that the value was genuinely untouched. RLS's
+  `to authenticated` policy is doing real work, not just decorative.
+- Deliberately did NOT build the third panel from the original design
+  (rating-anchor recalibration) - `rating` is still NULL project-wide
+  (see Phase 3 docstring), so a "recalibrate the 1-10 scale" action would
+  have nothing real to operate on yet. Revisit once real season data
+  exists.
+- One real manual step left before this is usable, deliberately not done
+  here: creating the actual admin login. Per this project's own
+  credential-handling rule, Claude never sets or enters a password on the
+  user's behalf, even a first one - the user creates it directly in
+  Supabase Dashboard -> Authentication -> Users -> Add User.

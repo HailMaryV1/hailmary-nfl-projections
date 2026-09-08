@@ -128,4 +128,10 @@ Real projections pool (`/`, position-filterable, mobile card list + desktop
 table) and a real per-player explainability page (`/players/[id]`) showing
 the actual per_stat/per_layer breakdown - "Not yet available" shown
 honestly wherever a layer has no real data, never a fabricated number.
-Phase 4 (settings/admin UI) not started.
+Phase 4 v1 done: real Supabase-Auth-gated admin at `/admin` (Scoring Rules
++ Layer Weights editors, both writing straight to the real tables via RLS's
+"admin write" policy - confirmed live that an unauthenticated write is
+silently rejected, not just UI-hidden). Needs one manual step before it's
+usable: create the real admin login in Supabase Dashboard -> Authentication
+-> Users -> Add User (never done by Claude - see the credential-handling
+rule in CLAUDE-level instructions).
