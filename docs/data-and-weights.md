@@ -379,3 +379,26 @@ hypothetical.
   every Python script (scrapers, `compute_projections.py`) is blocked
   until then, even though the REST API (used here as a workaround) still
   works fine via the service-role key.
+
+## 2026-09-08 - Phase 6: automated refresh pipeline
+
+- `.github/workflows/refresh_nfl.yml` - runs `scripts/refresh_nfl.py` then
+  `scripts/compute_projections.py` on a schedule (every 6 hours) plus a
+  manual `workflow_dispatch` trigger. Same resilience pattern already
+  proven in Dream Team Projections: the ingestion step gets
+  `continue-on-error: true` so a single scraper's real, transient failure
+  (e.g. FanTeam's own rate-limiting, hit live this session) doesn't block
+  `compute_projections.py` from still running against whatever data is
+  already in the DB - a final step then fails the whole run for visibility
+  in GitHub's UI if ingestion genuinely had a problem, without having
+  silently blocked the rest of the pipeline.
+- Needs a real `DATABASE_URL` repository secret (GitHub -> Settings ->
+  Secrets and variables -> Actions) - not committed anywhere, same
+  database password the local `.env` uses. `env_utils.load_env()` already
+  no-ops cleanly when no `.env` file exists (CI's real case), falling
+  through to the real `DATABASE_URL` process environment variable GitHub
+  Actions injects - no code change needed for this to work in CI.
+- GitHub/Vercel/domain wiring itself (Phase 6's other real deliverable)
+  was already done earlier this session, walked through step by step with
+  the user directly in their own GitHub/Vercel/Hostinger dashboards - see
+  the Phase 5 entries above for that trail.

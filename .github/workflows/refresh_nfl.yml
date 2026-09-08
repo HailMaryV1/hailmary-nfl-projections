@@ -1,0 +1,47 @@
+name: Refresh NFL Projections
+
+on:
+  schedule:
+    # Every 6 hours. RotoWire and Spreadex both have real bot-protection
+    # (Cloudflare) - a modest cadence, not tight polling, per the scrapers'
+    # own module docstrings.
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: playwright install --with-deps chromium
+
+      # Same resilience pattern as Dream Team Projections' own workflow:
+      # a transient scraper hiccup (e.g. FanTeam's own real rate-limiting,
+      # seen live 2026-09-08) shouldn't block compute_projections.py from
+      # still running against whatever real data IS already in the DB.
+      - name: Data ingestion
+        id: ingestion
+        continue-on-error: true
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/refresh_nfl.py
+
+      - name: Compute projections
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/compute_projections.py
+
+      - name: Fail the run if data ingestion had a real problem
+        if: steps.ingestion.outcome == 'failure'
+        run: |
+          echo "Data ingestion reported a failure - check the 'Data ingestion' step's own log above for which script failed."
+          exit 1

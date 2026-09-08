@@ -131,7 +131,10 @@ honestly wherever a layer has no real data, never a fabricated number.
 Phase 4 v1 done: real Supabase-Auth-gated admin at `/admin` (Scoring Rules
 + Layer Weights editors, both writing straight to the real tables via RLS's
 "admin write" policy - confirmed live that an unauthenticated write is
-silently rejected, not just UI-hidden). Needs one manual step before it's
-usable: create the real admin login in Supabase Dashboard -> Authentication
--> Users -> Add User (never done by Claude - see the credential-handling
-rule in CLAUDE-level instructions).
+silently rejected, not just UI-hidden). Admin login created and working.
+
+Phase 6 done: `.github/workflows/refresh_nfl.yml` runs the full pipeline
+(ingestion + projection engine) every 6 hours plus on-demand via
+workflow_dispatch, same continue-on-error resilience pattern as Dream Team
+Projections. Needs a `DATABASE_URL` repository secret set in GitHub
+(Settings -> Secrets and variables -> Actions) before its first real run.
