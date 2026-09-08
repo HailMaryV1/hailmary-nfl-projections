@@ -25,15 +25,22 @@ jobs:
         run: playwright install --with-deps chromium
 
       # Same resilience pattern as Dream Team Projections' own workflow:
-      # a transient scraper hiccup (e.g. FanTeam's own real rate-limiting,
-      # seen live 2026-09-08) shouldn't block compute_projections.py from
-      # still running against whatever real data IS already in the DB.
+      # a transient scraper hiccup shouldn't block compute_projections.py
+      # from still running against whatever real data IS already in the DB.
+      #
+      # FanTeam is skipped here on purpose, not because it's flaky: their
+      # own API returns a real, persistent 401 to GitHub's shared runner
+      # IPs (confirmed 2026-09-08, every automated attempt), and unlike
+      # RotoWire/FIC there's nothing time-sensitive to miss by skipping it -
+      # FanTeam player prices have never changed once. Run it manually
+      # (scrape_fanteam.py + import_fanteam.py) when a new gameweek's
+      # fixtures need pulling in, or to capture real gameweek points.
       - name: Data ingestion
         id: ingestion
         continue-on-error: true
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: python scripts/refresh_nfl.py
+        run: python scripts/refresh_nfl.py --skip fanteam
 
       - name: Compute projections
         env:

@@ -522,3 +522,33 @@ main pool, and a dedicated fixture-difficulty ranking tool.
   MarShawn Lloyd top the Value sort; team filter correctly narrows to
   just that team's real players). The "Opp" column is now colour-coded
   too, using the exact same real thresholds as `/fixtures`.
+
+## 2026-09-08 - CI failure triage: FanTeam goes manual, RotoWire/FIC stay automated
+
+`refresh_nfl.yml`'s first automated runs surfaced 3 of the 8 real ingestion
+scripts failing in CI while working fine when run directly: FanTeam (real,
+persistent HTTP 401 from their own API across every attempt), RotoWire
+(navigation timeouts), and FIC (confirmed via new diagnostic logging in
+`scrape_fic_anytime_td.py` to be a real Cloudflare bot-challenge page,
+`title: "Just a moment..."`). Root cause for all three is the same real,
+structural issue: GitHub-hosted runners share a datacenter IP pool with a
+poor reputation against third-party anti-bot/rate-limiting systems - not a
+code bug, and not fixable with retries or timeout tweaks.
+
+Decision: FanTeam is pulled from the automated schedule entirely
+(`refresh_nfl.py --skip fanteam`, wired into `refresh_nfl.yml`), based on a
+real, session-long observation rather than the CI failures alone - FanTeam
+player prices have not changed once across this whole project's history, so
+there is no real cost to not polling it every 6 hours. The only genuine
+future need from FanTeam is pulling in a new gameweek's fixtures and,
+eventually, real per-gameweek points once games are played - both a "once a
+week" cadence, run manually (`scrape_fanteam.py` + `import_fanteam.py`) when
+needed, not something that benefits from automation anyway.
+
+RotoWire and FIC are NOT given the same treatment - unlike FanTeam's static
+prices, both carry genuinely time-sensitive real data (starters/inactives/
+weather, and live odds, respectively) that automation is the right fit for.
+They stay in the automated workflow as-is (tolerated via `continue-on-error`
+so a bad run doesn't block `compute_projections.py`); a self-hosted runner
+(a real machine with a non-datacenter IP) remains the real fix if their
+CI failure rate needs addressing later, not yet acted on.

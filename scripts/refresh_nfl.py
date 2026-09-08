@@ -24,8 +24,17 @@ Order, and why:
 This is data ingestion only - the projection engine (Phase 3) that turns
 these real rows into a rating is a separate, later step, not run here.
 
+FanTeam (steps 2-3) is excluded from the automated GitHub Actions schedule
+via --skip fanteam: their player prices have never moved once across this
+whole project's history, and their own API returns a real, persistent 401
+to GitHub's shared runner IPs regardless (see docs/data-and-weights.md).
+Run it manually instead - `python scripts/scrape_fanteam.py && python
+scripts/import_fanteam.py` - whenever a new gameweek needs its fixtures
+pulled in, or once real games are played and gameweek points need capturing.
+
 RUN:
-    python scripts/refresh_nfl.py
+    python scripts/refresh_nfl.py             # everything, incl. FanTeam
+    python scripts/refresh_nfl.py --skip fanteam   # what CI actually runs
 """
 
 import subprocess
@@ -47,6 +56,11 @@ STEPS = [
     "import_schedule_difficulty.py",
 ]
 
+# Maps a --skip name to the script-name substrings it excludes.
+SKIP_GROUPS = {
+    "fanteam": ["fanteam.py"],
+}
+
 
 def run_step(script_name):
     print(f"\n=== {script_name} ===")
@@ -58,7 +72,16 @@ def run_step(script_name):
 
 
 def main():
-    results = {step: run_step(step) for step in STEPS}
+    skip_names = set()
+    if "--skip" in sys.argv:
+        skip_names = set(sys.argv[sys.argv.index("--skip") + 1].split(","))
+    skip_substrings = [s for name in skip_names for s in SKIP_GROUPS.get(name, [])]
+
+    steps = [s for s in STEPS if not any(sub in s for sub in skip_substrings)]
+    for skipped in set(STEPS) - set(steps):
+        print(f"\n=== {skipped} === [SKIPPED via --skip]")
+
+    results = {step: run_step(step) for step in steps}
 
     print("\n=== Summary ===")
     for step, ok in results.items():
