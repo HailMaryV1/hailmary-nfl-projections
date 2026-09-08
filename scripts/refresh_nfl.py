@@ -18,6 +18,8 @@ Order, and why:
   6. scrape_spreadex_nfl_props.py     - real player-prop odds - needs our fixtures + players to already exist
   7. scrape_fic_anytime_td.py         - real live "Score Any TD" odds (Caesars line via fantasyinfocentral.com)
   8. import_fic_anytime_td.py         - anytime_td market - needs our fixtures + players to already exist
+  9. scrape_schedule_difficulty.py    - real full-season (18-week) matchups + Vegas-derived opponent win totals
+ 10. import_schedule_difficulty.py    - team_schedule_difficulty - only needs teams (step 1), independent of the rest
 
 This is data ingestion only - the projection engine (Phase 3) that turns
 these real rows into a rating is a separate, later step, not run here.
@@ -41,6 +43,8 @@ STEPS = [
     "scrape_spreadex_nfl_props.py",
     "scrape_fic_anytime_td.py",
     "import_fic_anytime_td.py",
+    "scrape_schedule_difficulty.py",
+    "import_schedule_difficulty.py",
 ]
 
 

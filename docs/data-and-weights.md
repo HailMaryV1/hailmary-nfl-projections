@@ -402,3 +402,41 @@ hypothetical.
   was already done earlier this session, walked through step by step with
   the user directly in their own GitHub/Vercel/Hostinger dashboards - see
   the Phase 5 entries above for that trail.
+
+## 2026-09-08 - Real full-season schedule + difficulty ingested
+
+- User's own follow-up question ("can we scrape this for schedule
+  difficulty? So we can plan weeks ahead?") led to
+  `scripts/scrape_schedule_difficulty.py` +
+  `scripts/import_schedule_difficulty.py`, sourcing Sharp Football
+  Analysis's real Strength of Schedule tool (a separate Cloudflare Worker
+  app embedded via iframe - plain vanilla JS, no bot-protection, confirmed
+  live). New `team_schedule_difficulty` table (migration 0012) - kept
+  deliberately separate from `fixtures` since this source gives a real
+  week number + opponent + Vegas-derived opponent win total but no exact
+  kickoff date/time, and `fixtures` real contract is precise scheduling.
+- Real per-week SVG text nodes share the same x-coordinate across four
+  parallel series (win total, opponent abbreviation, home/away, week
+  number) - grouping by x rather than reading flattened text top-to-bottom
+  is what let this be extracted reliably; a bye week correctly has no
+  win/opponent/home-away text at its x-slot, just the week number + a
+  "BYE" label. All 32 teams returned exactly 18 weeks with exactly one
+  real bye each - verified programmatically, not assumed.
+- One abbreviation override needed and found on the first run: this
+  source uses "LVR" for the Raiders where this project's own seeded abbr
+  is "LV" - every other one of the 32 real abbreviations matched exactly
+  with zero unmatched rows.
+- **Independently cross-validated, not just internally consistent**:
+  checked this source's real Week 1 matchups and home/away assignments
+  against the already-ingested FanTeam fixtures (a completely separate
+  real source) - all 10 spot-checked games matched exactly.
+- Added to `refresh_nfl.py` as steps 9-10 - this data only depends on
+  `seed_teams.py` (teams existing), independent of the rest of the
+  pipeline, and safely idempotent to re-run (upserts on
+  `(team_id, gameweek, source)`).
+- **Not yet wired into `compute_projections.py`** - this closes the real
+  data gap (fixture/bye calendar + opponent difficulty for all 18 weeks),
+  but actually using it for a real offense Fixture Quality signal at
+  horizon 1, or building out horizons 2/3/5 properly now that the
+  underlying schedule data exists, is real follow-up work, not done in
+  this pass.
