@@ -30,6 +30,16 @@ export default function LayerWeightsForm({ rows }: { rows: LayerWeightRow[] }) {
   const sumIsBalanced = Math.abs(sum - 1) < 0.01;
   const dirty = selected.some((r) => values[r.id] !== r.weight);
 
+  // Real, confirmed-live bug (2026-09-08): a "Saved N change(s)" message
+  // from one horizon/position tab stayed on screen after switching to a
+  // DIFFERENT tab with its own unsaved edits, making it look like those
+  // edits had saved too when Save was never actually clicked for them.
+  // Any tab change clears it - a stale confirmation is worse than none.
+  function switchTab(next: () => void) {
+    setMessage(null);
+    next();
+  }
+
   async function handleSave() {
     setSaving(true);
     setMessage(null);
@@ -51,7 +61,7 @@ export default function LayerWeightsForm({ rows }: { rows: LayerWeightRow[] }) {
           <button
             key={h}
             type="button"
-            onClick={() => setHorizon(h)}
+            onClick={() => switchTab(() => setHorizon(h))}
             className={`rounded-full px-3.5 py-1.5 text-sm font-bold uppercase tracking-wide ${
               h === horizon ? "bg-sky-500 text-navy-950" : "bg-navy-900 text-navy-400 hover:bg-navy-800"
             }`}
@@ -65,7 +75,7 @@ export default function LayerWeightsForm({ rows }: { rows: LayerWeightRow[] }) {
           <button
             key={p}
             type="button"
-            onClick={() => setPosition(p)}
+            onClick={() => switchTab(() => setPosition(p))}
             className={`rounded-full px-3.5 py-1.5 text-sm font-bold uppercase tracking-wide ${
               p === position ? "bg-navy-700 text-navy-100" : "bg-navy-900 text-navy-400 hover:bg-navy-800"
             }`}

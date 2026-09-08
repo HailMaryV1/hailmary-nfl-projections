@@ -353,3 +353,29 @@ hypothetical.
   a real `npm run build` locally first whenever a change touches
   `useSearchParams`, `useSelectedLayoutSegment`, or anything else with
   known static-rendering caveats.
+
+## 2026-09-08 - Real bug caught via the admin's own first real edits
+
+- The user's real first round of layer-weight edits (a genuinely sound
+  NFL-specific insight: Fixture Quantity=0 across the board since every
+  team plays exactly one real game per week - no blanks/doubles the way
+  Premier League has) surfaced a real UI bug: switching horizon/position
+  tabs didn't clear the previous tab's "Saved N change(s)" message, so a
+  stale success message from GW+2 was still showing when the user edited
+  and believed they'd saved GW+3 - which, confirmed via a direct read of
+  the live table, had NOT actually saved (still at the original seeded
+  0.15/0.2/0.3/0.35, not the intended 0.2/0.4/0.4/0). Fixed by clearing
+  the message on every tab switch in `LayerWeightsForm.tsx`.
+- Corrected the real data directly (GW+3 QB, plus applied the user's full
+  4-horizon pattern to all 5 positions per their explicit request) via
+  the Supabase REST API using the service-role key, since the direct
+  Postgres connection (`DATABASE_URL`) started failing mid-session -
+  confirmed live: `password authentication failed for user "postgres"`.
+  Likely cause: resetting the Auth user's password (Dashboard ->
+  Authentication) is a different action from resetting the database's own
+  password (Dashboard -> Settings -> Database) - the user may have used
+  the latter, or the two got confused. **Still needs the real current
+  database password from the user to fix `.env` / `DATABASE_URL`** -
+  every Python script (scrapers, `compute_projections.py`) is blocked
+  until then, even though the REST API (used here as a workaround) still
+  works fine via the service-role key.
