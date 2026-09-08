@@ -440,3 +440,40 @@ hypothetical.
   horizon 1, or building out horizons 2/3/5 properly now that the
   underlying schedule data exists, is real follow-up work, not done in
   this pass.
+
+## 2026-09-08 - Multi-week horizons + real Fixture Quality for offense
+
+- User's follow-up ("wire it in and build the horizons") after the
+  schedule-difficulty ingestion above. Horizons 2/3/5 are now real
+  projections, not just horizon 1: `compute_multi_week_projection()`
+  sums a player's real horizon-1 per-stat numbers (used as-is for the
+  current gameweek, since that's real and already live-odds-priced) with
+  every other week in the window scaled by a real, market-derived
+  opponent-strength multiplier (`stat_math.fixture_quality_multiplier`,
+  built from Sharp Football Analysis's real Vegas-win-total model,
+  z-scored against the real league-wide distribution computed fresh from
+  whatever's in `team_schedule_difficulty` - not hardcoded). A real bye
+  week within the window contributes exactly 0, verified live: Kansas
+  City's real Week 5 bye correctly reduces a KC player's horizon-5
+  `fixture_quantity` to exactly 0.8 (4 real games / 5-week window), and
+  their total_points reflects only those 4 games.
+- k=0.15 with a [0.7, 1.3] clip is a documented, deliberately modest
+  first-pass assumption (see the function's own docstring) - not fit to
+  any real accuracy data yet, since none exists this early in the season.
+- **Real bug caught and fixed in the same pass, unrelated to horizons but
+  found while restructuring this code**: `price_stats()` was applying the
+  real lineup-status (xmins) discount to the returned `total_points` but
+  NOT to the individual `per_stat` rows actually stored in the DB -
+  confirmed live: Christian McCaffrey's questionable 0.75 xmins meant his
+  displayed total (17.078) didn't match his own per-stat breakdown's sum
+  (22.771, off by exactly the missing 0.75 factor) - a real, user-facing
+  inconsistency on `/players/[id]` that would have shown numbers not
+  adding up. Fixed by applying xmins inside `price_stats()` itself, to
+  every stat, not just the aggregate - verified the sum now matches
+  exactly, at every horizon, for every player checked.
+- Multi-week per_layer reporting is honest about being a coarser estimate
+  than horizon 1: `fixture_quality.value` is the real average multiplier
+  applied across the window (so a favourable/tough run of games is
+  visible, not hidden inside a single number), and `lineup_status` is
+  carried forward from horizon 1 as a documented simplifying assumption
+  (a real per-week injury forecast for future weeks doesn't exist).

@@ -77,6 +77,26 @@ def points_allowed_distribution(mean_points, sd=POINTS_ALLOWED_SD):
     return distribution
 
 
+def fixture_quality_multiplier(opponent_win_total, league_mean, league_std, k=0.15, clip=(0.7, 1.3)):
+    """Real, market-derived opponent strength (Sharp Football Analysis's
+    own Vegas-win-total-based model, see team_schedule_difficulty) turned
+    into a multiplier on a player's baseline production for a FUTURE week
+    that has no live odds yet. A tougher-than-average opponent (positive
+    z-score) scales production down; an easier one scales it up.
+
+    k=0.15 and the [0.7, 1.3] clip are a documented, deliberately modest
+    first-pass assumption (a 1-std-tougher opponent is a 15% adjustment,
+    capped at +/-30% even at the extremes) - not fit to any real
+    prediction-accuracy data yet, since none exists for a season that's
+    barely started. Revisit once real predictions_and_actuals history
+    exists to check it against."""
+    if league_std <= 0:
+        return 1.0
+    z = (opponent_win_total - league_mean) / league_std
+    multiplier = 1 - k * z
+    return max(clip[0], min(clip[1], multiplier))
+
+
 def american_to_decimal(american_odds):
     """Real US-format odds ('-335', '+130') -> decimal odds. Standard
     conversion: negative means "bet this much to win 100", positive means

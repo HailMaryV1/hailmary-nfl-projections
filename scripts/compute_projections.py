@@ -7,11 +7,19 @@ Points" number per player for the current gameweek.
 
 READ THIS BEFORE ASSUMING SOMETHING IS MISSING:
 
-- Only horizon=1 is computed. Horizons 2/3/5 need real fixture data for
-  future gameweeks (bye weeks, opponent matchups) that hasn't been
-  scraped yet - this project only ever ingests the "editable" current
-  gameweek (see scrape_fanteam.py's docstring). Extending to multi-week
-  horizons is real future work, not a bug here.
+- Horizons 2/3/5 are real, but built differently from horizon 1, and
+  necessarily less precise - see `compute_multi_week_projection` below.
+  Horizon 1 is the only one with real live odds (Spreadex/FIC) for every
+  stat; gameweeks 2+ have no market posted yet (bookmakers don't price a
+  game that's 2+ weeks out), so those weeks scale horizon 1's own real
+  per-stat numbers by a real, market-derived opponent-strength multiplier
+  (Sharp Football Analysis's Vegas-win-total-based model, via
+  `team_schedule_difficulty`) rather than repricing from scratch. A real
+  bye week within the horizon window contributes exactly 0, not a guess.
+  This is a genuine, if simplified, estimate for future weeks - not as
+  precise as horizon 1's live-odds pricing, and documented as such in
+  `per_layer.live_odds`/`fixture_quality` for anyone reading a multi-week
+  projection.
 - `rating` (the 1-10 absolute scale) is left NULL. The original design
   (see CLAUDE.md) calibrates that scale from a real measured distribution
   of a season's worth of ratings - with one gameweek of a brand-new season
@@ -66,10 +74,13 @@ from stat_math import (  # noqa: E402
     POINTS_ALLOWED_TIERS,
     anytime_prob_to_expected_count,
     expected_value_from_points,
+    fixture_quality_multiplier,
     points_allowed_distribution,
 )
 
 HORIZON = 1
+MULTI_WEEK_HORIZONS = [2, 3, 5]
+MAX_GAMEWEEK = 18
 
 # market family -> (scoring stat, estimator)
 LADDER_STAT_MAP = {
@@ -284,17 +295,132 @@ def compute_defense_special_stats(cur, fixture_id, team_id, home_team_id, away_t
     return per_stat, opponent_points
 
 
-def price_stats(per_stat, applies_to, scoring_rules):
+def price_stats(per_stat, applies_to, scoring_rules, xmins=1.0):
+    """Prices every stat and applies the real lineup-status probability
+    directly to each one (not just the aggregate) - a player projected at
+    75% likely to play should show 75%-scaled numbers in EVERY stat row,
+    not just in the total. Confirmed live 2026-09-08 this was a real bug:
+    total_points was being scaled by xmins after price_stats returned, but
+    the stored per_stat rows never were, so a questionable player's own
+    explainability page showed a per-stat breakdown that didn't sum to
+    their displayed total (Christian McCaffrey: total 17.078 vs a real
+    per_stat sum of 22.771 - exactly the un-discounted number, off by
+    precisely his 0.75 xmins probability)."""
     total = 0.0
     for stat, info in per_stat.items():
         rate_stat = PRICING_ALIAS.get(stat, stat)
         points_per_unit = scoring_rules.get((applies_to, rate_stat))
+        info["expected_count"] = round(info["expected_count"] * xmins, 3)
         if points_per_unit is None:
             info["points"] = 0.0
             continue
         info["points"] = round(info["expected_count"] * points_per_unit, 3)
         total += info["points"]
     return round(total, 3)
+
+
+def load_league_win_total_stats(cur):
+    """Real, self-calibrating (not hardcoded) mean/stdev of every team's
+    own Vegas-projected win total, computed fresh from whatever real
+    schedule-difficulty data is currently ingested - each of the 32 real
+    teams' own win total is picked up once, from wherever it appears as
+    someone else's opponent. A handful of real rows are missing this value
+    (confirmed live 2026-09-08: every appearance of Green Bay as an
+    opponent has a null win total - a rendering quirk on the source site
+    for a 2-letter team code, not something worth guessing at) - excluded
+    from the distribution rather than treated as 0."""
+    cur.execute(
+        """
+        select distinct on (opponent_team_id) opponent_win_total
+        from team_schedule_difficulty
+        where opponent_team_id is not null and opponent_win_total is not null
+        """
+    )
+    values = [float(row[0]) for row in cur.fetchall()]
+    if len(values) < 2:
+        return 0.0, 0.0
+    mean = sum(values) / len(values)
+    variance = sum((v - mean) ** 2 for v in values) / len(values)
+    return mean, variance ** 0.5
+
+
+def load_schedule_difficulty(cur):
+    """Every real team_schedule_difficulty row, once - only 32 teams x 18
+    weeks (576 rows total), trivially small to hold in memory. Avoids a
+    separate round-trip per player per horizon (603 players x 3 horizons
+    would otherwise be ~1800 individual queries for data that never
+    changes within a single run)."""
+    cur.execute("select team_id, gameweek, opponent_team_id, is_bye, opponent_win_total from team_schedule_difficulty")
+    by_team = {}
+    for team_id, gameweek, opponent_team_id, is_bye, opponent_win_total in cur.fetchall():
+        by_team.setdefault(team_id, {})[gameweek] = (gameweek, opponent_team_id, is_bye, opponent_win_total)
+    return by_team
+
+
+def get_schedule_window(schedule_by_team, team_id, start_gw, num_weeks):
+    """Real (gameweek, opponent_team_id, is_bye, opponent_win_total) rows
+    for [start_gw, start_gw+num_weeks-1], clipped to real gameweeks
+    (1-18) - a horizon requested near the end of the season simply gets a
+    shorter real window, not padded with invented future weeks."""
+    end_gw = min(start_gw + num_weeks - 1, MAX_GAMEWEEK)
+    team_schedule = schedule_by_team.get(team_id, {})
+    return [team_schedule[gw] for gw in range(start_gw, end_gw + 1) if gw in team_schedule]
+
+
+def compute_multi_week_projection(base, schedule_window, current_gw, league_mean, league_std):
+    """Sums a player's real per-stat production across a multi-week
+    window: the current gameweek's own contribution is `base`'s real
+    (Live-Odds-priced) numbers, used exactly as computed for horizon 1 -
+    every OTHER week in the window scales those same per-stat numbers by
+    a real opponent-strength multiplier (or 1.0 if that week's real
+    matchup data isn't in the window at all, e.g. beyond gameweek 18), and
+    a real bye week contributes nothing. Returns (total_points, per_stat,
+    real_games_used, weeks_in_window, multipliers_used)."""
+    per_stat = {stat: {"expected_count": 0.0, "points": 0.0, "populated": info["populated"]} for stat, info in base["per_stat"].items()}
+    real_games, multipliers_used = 0, []
+
+    schedule_by_gw = {row[0]: row for row in schedule_window}
+    weeks_in_window = len(schedule_window) or 1
+
+    for gw, row in schedule_by_gw.items():
+        _gw, _opponent_team_id, is_bye, opponent_win_total = row
+        if is_bye:
+            continue
+        if gw == current_gw:
+            multiplier = 1.0  # this week is base's own real, already-priced number - not re-scaled
+        elif opponent_win_total is not None:
+            multiplier = fixture_quality_multiplier(float(opponent_win_total), league_mean, league_std)
+        else:
+            multiplier = 1.0
+        multipliers_used.append(multiplier)
+        real_games += 1
+        for stat, info in base["per_stat"].items():
+            per_stat[stat]["expected_count"] += info["expected_count"] * multiplier
+            per_stat[stat]["points"] += info["points"] * multiplier
+
+    for stat in per_stat:
+        per_stat[stat]["expected_count"] = round(per_stat[stat]["expected_count"], 3)
+        per_stat[stat]["points"] = round(per_stat[stat]["points"], 3)
+
+    total_points = round(sum(s["points"] for s in per_stat.values()), 3)
+    return total_points, per_stat, real_games, weeks_in_window, multipliers_used
+
+
+def upsert_projection(cur, player_id, gameweek, horizon, algorithm_version_id, total_points, per_stat, per_layer, data_confidence):
+    cur.execute(
+        """
+        insert into projections
+            (player_id, gameweek, horizon, algorithm_version_id, total_points, rating, per_stat, per_layer, data_confidence)
+        values (%s, %s, %s, %s, %s, null, %s, %s, %s)
+        on conflict (player_id, gameweek, horizon, algorithm_version_id) do update set
+            total_points = excluded.total_points,
+            per_stat = excluded.per_stat,
+            per_layer = excluded.per_layer,
+            data_confidence = excluded.data_confidence,
+            created_at = now()
+        """,
+        (player_id, gameweek, horizon, algorithm_version_id, total_points, json.dumps(per_stat), json.dumps(per_layer), data_confidence),
+    )
 
 
 def main():
@@ -316,6 +442,7 @@ def main():
         players = cur.fetchall()
 
         written, no_fixture, defense_skipped = 0, 0, 0
+        base_results = {}  # player_id -> real horizon-1 result, reused below for multi-week horizons
 
         for player_id, team_id, position in players:
             fixture_row = find_fixture_for_team(cur, team_id, gameweek)
@@ -325,8 +452,7 @@ def main():
             fixture_id, home_team_id, away_team_id = fixture_row
 
             # Always 1.0 here - a bye week (no fixture this gameweek) is
-            # already filtered out by the `continue` above. Meaningful once
-            # future-gameweek fixtures (and real byes) are ingested.
+            # already filtered out by the `continue` above.
             fixture_quantity = 1.0
             xmins, status, status_source = lineup_probability(cur, player_id, fixture_id)
             weights_for_position = layer_weights.get((HORIZON, position), {})
@@ -341,7 +467,7 @@ def main():
                 # rewarded for conceding fewer of. This is a real
                 # Fixture Quality signal, not a Live Odds one.
                 per_stat, opponent_points = compute_defense_special_stats(cur, fixture_id, team_id, home_team_id, away_team_id)
-                total_points = price_stats(per_stat, "defense_special", scoring_rules)
+                total_points = price_stats(per_stat, "defense_special", scoring_rules, xmins)
                 live_odds_populated = False
                 fixture_quality_populated = opponent_points is not None
                 if opponent_points is None:
@@ -350,10 +476,8 @@ def main():
                 fixture_quality_populated = False
                 families = market_odds_by_family(cur, player_id, fixture_id)
                 per_stat = compute_offense_player_stats(families)
-                total_points = price_stats(per_stat, "offense", scoring_rules)
+                total_points = price_stats(per_stat, "offense", scoring_rules, xmins)
                 live_odds_populated = any(v["populated"] for v in per_stat.values())
-
-            total_points = round(total_points * xmins, 3)
 
             per_layer = {
                 "lineup_status": {"probability": xmins, "status": status, "source": status_source},
@@ -364,21 +488,12 @@ def main():
             }
             data_confidence = round(xmins * (1.0 if (live_odds_populated or fixture_quality_populated) else 0.0), 3)
 
-            cur.execute(
-                """
-                insert into projections
-                    (player_id, gameweek, horizon, algorithm_version_id, total_points, rating, per_stat, per_layer, data_confidence)
-                values (%s, %s, %s, %s, %s, null, %s, %s, %s)
-                on conflict (player_id, gameweek, horizon, algorithm_version_id) do update set
-                    total_points = excluded.total_points,
-                    per_stat = excluded.per_stat,
-                    per_layer = excluded.per_layer,
-                    data_confidence = excluded.data_confidence,
-                    created_at = now()
-                """,
-                (player_id, gameweek, HORIZON, algorithm_version_id, total_points, json.dumps(per_stat), json.dumps(per_layer), data_confidence),
-            )
+            upsert_projection(cur, player_id, gameweek, HORIZON, algorithm_version_id, total_points, per_stat, per_layer, data_confidence)
             written += 1
+            base_results[player_id] = {
+                "team_id": team_id, "position": position, "per_stat": per_stat, "per_layer": per_layer,
+                "data_confidence": data_confidence,
+            }
 
         conn.commit()
         print(
@@ -386,6 +501,39 @@ def main():
             f"(algorithm_version {algorithm_version_id}), {no_fixture} skipped (no fixture this gameweek), "
             f"{defense_skipped} defense_special row(s) with no real game_odds posted yet (fell back to 0)."
         )
+
+        # Multi-week horizons - real for every player who got a real
+        # horizon-1 result above, using team_schedule_difficulty (see
+        # module docstring for the real methodology and its limits).
+        league_mean, league_std = load_league_win_total_stats(cur)
+        schedule_by_team = load_schedule_difficulty(cur)
+        multi_week_written = 0
+        for h in MULTI_WEEK_HORIZONS:
+            for player_id, base in base_results.items():
+                schedule_window = get_schedule_window(schedule_by_team, base["team_id"], gameweek, h)
+                if not schedule_window:
+                    continue
+                total_points, per_stat, real_games, weeks_in_window, multipliers = compute_multi_week_projection(
+                    base, schedule_window, gameweek, league_mean, league_std
+                )
+                weights_for_position = layer_weights.get((h, base["position"]), {})
+                per_layer = {
+                    "lineup_status": base["per_layer"]["lineup_status"],
+                    "form": {"populated": False, "weight": weights_for_position.get("form")},
+                    "fixture_quantity": {"populated": True, "value": round(real_games / weeks_in_window, 3), "weight": weights_for_position.get("fixture_quantity")},
+                    "fixture_quality": {
+                        "populated": True,
+                        "value": round(sum(multipliers) / len(multipliers), 3) if multipliers else None,
+                        "weight": weights_for_position.get("fixture_quality"),
+                    },
+                    "live_odds": {"populated": True, "weight": weights_for_position.get("live_odds")},
+                }
+                data_confidence = round(base["data_confidence"] * (real_games / weeks_in_window), 3)
+                upsert_projection(cur, player_id, gameweek, h, algorithm_version_id, total_points, per_stat, per_layer, data_confidence)
+                multi_week_written += 1
+            conn.commit()
+
+        print(f"Multi-week horizons {MULTI_WEEK_HORIZONS}: {multi_week_written} projections written across all horizons.")
     except Exception:
         conn.rollback()
         raise
