@@ -333,3 +333,23 @@ hypothetical.
   credential-handling rule, Claude never sets or enters a password on the
   user's behalf, even a first one - the user creates it directly in
   Supabase Dashboard -> Authentication -> Users -> Add User.
+
+## 2026-09-08 - Real production build failure caught post-push
+
+- The Phase 4 push almost certainly failed to deploy on Vercel: `/login`'s
+  `useSearchParams()` wasn't wrapped in a `<Suspense>` boundary, which
+  `next build` treats as a hard prerender error (confirmed by running a
+  real local production build - `npm run dev` never surfaces this class
+  of error, only `next build` does). Live site was still serving the old
+  Phase 5 build (confirmed: the new "Admin" header link wasn't present)
+  while `/admin` 404'd - consistent with a failed Vercel build, not just
+  "still deploying".
+- Fixed by splitting `/login` into a server `page.tsx` (wraps in
+  `<Suspense>`) and a client `LoginForm.tsx` (holds the actual
+  `useSearchParams()` call) - verified with a real local `npm run build`
+  before pushing again, not just re-deploying and hoping.
+- **Process lesson for this project going forward**: `npm run dev` is not
+  sufficient verification before a push that's expected to deploy - run
+  a real `npm run build` locally first whenever a change touches
+  `useSearchParams`, `useSelectedLayoutSegment`, or anything else with
+  known static-rendering caveats.
