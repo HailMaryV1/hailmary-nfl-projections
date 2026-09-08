@@ -9,9 +9,14 @@ export default function SiteHeader() {
           <span className="hidden text-navy-600 sm:inline">/</span>
           <span className="truncate text-sm font-medium text-navy-300">NFL Projections</span>
         </Link>
-        <Link href="/admin" className="shrink-0 text-xs text-navy-500 hover:text-sky-300">
-          Admin
-        </Link>
+        <div className="flex shrink-0 items-center gap-4">
+          <Link href="/fixtures" className="text-sm text-navy-300 hover:text-sky-300">
+            Fixtures
+          </Link>
+          <Link href="/admin" className="text-xs text-navy-500 hover:text-sky-300">
+            Admin
+          </Link>
+        </div>
       </div>
     </header>
   );

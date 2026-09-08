@@ -495,3 +495,30 @@ hypothetical.
   displayed total exactly; the list view's Week-5 rankings visibly
   reshuffle based on real schedule strength, not just repeating the
   Week-1 order scaled by a constant.
+
+## 2026-09-08 - Real fixture difficulty tool, colour-coding, and pool filters
+
+User request: colour-coded fixture difficulty (Red/Orange/Yellow/Blue) on
+the player profile's upcoming fixtures, Value and Team filters on the
+main pool, and a dedicated fixture-difficulty ranking tool.
+
+- `lib/fixtureDifficulty.ts` - real, self-calibrating quartile thresholds
+  computed fresh from whatever `team_schedule_difficulty` win-total values
+  currently exist (not a hardcoded scale), shared by every surface below
+  so a colour means the same real thing everywhere on the site.
+- New `/fixtures` page - every real team's real schedule, selectable
+  window (Next 4/6/8/Rest of Season), sortable by average real difficulty
+  (easiest run first by default, flips to hardest). Verified in a real
+  browser at both 4-column and full 18-column width, including on mobile
+  - the wide table scrolls within its own container (confirmed
+  `document.body.scrollWidth === window.innerWidth` even at 18 columns),
+  never the page itself.
+- Player profile: a real "Upcoming Fixtures" ticker (next 6 real weeks),
+  colour-coded the same way, independent of the horizon tabs so it stays
+  a stable view of the run ahead while switching horizons.
+- Main pool (`/`): a real Team filter (all 32 real teams) and a Value/
+  Points sort toggle (Value = Proj Pts / price) with its own visible
+  column - verified both change the real ranking (cheap value plays like
+  MarShawn Lloyd top the Value sort; team filter correctly narrows to
+  just that team's real players). The "Opp" column is now colour-coded
+  too, using the exact same real thresholds as `/fixtures`.

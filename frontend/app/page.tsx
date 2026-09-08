@@ -2,6 +2,7 @@ import Link from "next/link";
 import SiteHeader from "./SiteHeader";
 import RatingsTable, { type PlayerRow } from "./RatingsTable";
 import { createPublicClient } from "@/lib/supabaseClient";
+import { computeDifficultyThresholds, difficultyTier } from "@/lib/fixtureDifficulty";
 
 const HORIZONS = [1, 2, 3, 5];
 const HORIZON_LABELS: Record<number, string> = { 1: "This Week", 2: "Next 2", 3: "Next 3", 5: "Next 5" };
@@ -77,6 +78,27 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ h
     }
   }
 
+  // Real difficulty tier for the "Opp" column - same thresholds and
+  // opponent-strength data as the /fixtures tool, so a colour on this page
+  // means the same thing there.
+  const { data: allWinTotals } = await supabase
+    .from("team_schedule_difficulty")
+    .select("opponent_win_total")
+    .not("opponent_win_total", "is", null)
+    .eq("is_bye", false);
+  const thresholds = computeDifficultyThresholds((allWinTotals ?? []).map((r) => Number(r.opponent_win_total)));
+
+  const { data: currentWeekDifficulty } = gameweek
+    ? await supabase
+        .from("team_schedule_difficulty")
+        .select("team_id, is_bye, opponent_win_total")
+        .eq("gameweek", gameweek)
+    : { data: [] };
+  const difficultyByTeamId = new Map<number, ReturnType<typeof difficultyTier>>();
+  for (const row of currentWeekDifficulty ?? []) {
+    difficultyByTeamId.set(row.team_id, difficultyTier(row.opponent_win_total === null ? null : Number(row.opponent_win_total), row.is_bye, thresholds));
+  }
+
   const players: PlayerRow[] = ((rows ?? []) as unknown as ProjectionRow[]).map((r) => {
     const opponent = opponentByTeamId.get(r.players.team_id);
     return {
@@ -86,6 +108,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ h
       price: Number(r.players.price),
       team: r.players.teams?.abbr ?? "—",
       opponent: opponent ? `${opponent.isHome ? "vs" : "@"} ${opponent.opponentAbbr}` : "—",
+      opponentTier: difficultyByTeamId.get(r.players.team_id) ?? null,
       totalPoints: Number(r.total_points),
       dataConfidence: r.data_confidence === null ? null : Number(r.data_confidence),
     };

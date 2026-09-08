@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import SiteHeader from "../../SiteHeader";
 import { createPublicClient } from "@/lib/supabaseClient";
 import { positionLabel } from "@/lib/positions";
+import { DIFFICULTY_COLORS, computeDifficultyThresholds, difficultyTier } from "@/lib/fixtureDifficulty";
+
+const UPCOMING_FIXTURES_COUNT = 6;
 
 const HORIZONS = [1, 2, 3, 5];
 const HORIZON_LABELS: Record<number, string> = { 1: "This Week", 2: "Next 2", 3: "Next 3", 5: "Next 5" };
@@ -71,6 +74,37 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
     }
   }
 
+  // Real upcoming-fixture difficulty ticker - independent of the selected
+  // horizon above (always shows the real next N weeks from the player's
+  // own team, so it's a stable "how's their run looking" view even while
+  // switching between horizon tabs).
+  let upcomingFixtures: { gameweek: number; opponentAbbr: string | null; isHome: boolean | null; isBye: boolean; tier: ReturnType<typeof difficultyTier> }[] = [];
+  if (projection) {
+    const { data: allWinTotals } = await supabase
+      .from("team_schedule_difficulty")
+      .select("opponent_win_total")
+      .not("opponent_win_total", "is", null)
+      .eq("is_bye", false);
+    const thresholds = computeDifficultyThresholds((allWinTotals ?? []).map((r) => Number(r.opponent_win_total)));
+
+    const { data: teamSchedule } = await supabase
+      .from("team_schedule_difficulty")
+      .select("gameweek, is_home, is_bye, opponent_win_total, opponent:teams!opponent_team_id(abbr)")
+      .eq("team_id", player.team_id)
+      .gte("gameweek", projection.gameweek)
+      .lt("gameweek", projection.gameweek + UPCOMING_FIXTURES_COUNT)
+      .order("gameweek");
+
+    type ScheduleJoin = { gameweek: number; is_home: boolean | null; is_bye: boolean; opponent_win_total: number | null; opponent: { abbr: string } | null };
+    upcomingFixtures = ((teamSchedule ?? []) as unknown as ScheduleJoin[]).map((row) => ({
+      gameweek: row.gameweek,
+      opponentAbbr: row.opponent?.abbr ?? null,
+      isHome: row.is_home,
+      isBye: row.is_bye,
+      tier: difficultyTier(row.opponent_win_total === null ? null : Number(row.opponent_win_total), row.is_bye, thresholds),
+    }));
+  }
+
   const backHref = from ? `/${from.replace(/^\/+/, "")}` : "/";
   const horizonHref = (h: number) => {
     const query = new URLSearchParams();
@@ -125,6 +159,32 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
           <p className="mt-8 text-sm text-navy-400">No projection available for this player yet.</p>
         ) : (
           <>
+            {upcomingFixtures.length > 0 && (
+              <section className="mt-6">
+                <h2 className="text-sm font-semibold uppercase tracking-wide text-navy-400">Upcoming Fixtures</h2>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {upcomingFixtures.map((f) => {
+                    const colors = DIFFICULTY_COLORS[f.tier];
+                    return (
+                      <span
+                        key={f.gameweek}
+                        className="flex flex-col items-center gap-0.5 rounded-md px-2.5 py-1.5"
+                        style={{ backgroundColor: colors.bg }}
+                        title={f.isBye ? `GW${f.gameweek}: Bye` : `GW${f.gameweek}: ${f.isHome ? "vs" : "@"} ${f.opponentAbbr}`}
+                      >
+                        <span className="text-[10px] uppercase tracking-wide" style={{ color: colors.text, opacity: 0.75 }}>
+                          GW{f.gameweek}
+                        </span>
+                        <span className="font-mono text-xs font-bold" style={{ color: colors.text }}>
+                          {f.isBye ? "BYE" : `${f.isHome ? "" : "@"}${f.opponentAbbr}`}
+                        </span>
+                      </span>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
             <section className="mt-8">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-navy-400">How this was built</h2>
               <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
