@@ -1,0 +1,1641 @@
+{
+  "total_points": 2839.7,
+  "extra_transfer_weeks": [],
+  "weeks": [
+    {
+      "gw": 1,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Lamar Jackson",
+          "team": "BAL",
+          "price": 20.0,
+          "pts": 21.7
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 26.9
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 13.3
+        },
+        "WR1": {
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "price": 20.0,
+          "pts": 20.7
+        },
+        "WR2": {
+          "name": "Zay Flowers",
+          "team": "BAL",
+          "price": 18.0,
+          "pts": 12.8
+        },
+        "WR3": {
+          "name": "Ladd McConkey",
+          "team": "LAC",
+          "price": 16.5,
+          "pts": 15.5
+        },
+        "TE": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 9.2
+        },
+        "FLEX": {
+          "name": "Omarion Hampton",
+          "team": "LAC",
+          "price": 17.5,
+          "pts": 15.2
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 1.4
+      },
+      "moves": [],
+      "transfers_used": 0,
+      "transfers_available": null,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 139.5,
+      "team_counts": {
+        "BAL": 2,
+        "DET": 2,
+        "GB": 1,
+        "LAC": 2,
+        "NYG": 1,
+        "LV": 1
+      },
+      "week_points": 136.70000000000002,
+      "running_total": 136.70000000000002
+    },
+    {
+      "gw": 2,
+      "is_wildcard": true,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 33.5
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 37.8
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 16.4
+        },
+        "WR1": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 27.3
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 20.5
+        },
+        "WR3": {
+          "name": "Davante Adams",
+          "team": "LAR",
+          "price": 17.5,
+          "pts": 18.8
+        },
+        "TE": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 7.5
+        },
+        "FLEX": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 19.3
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.9
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Jahmyr Gibbs",
+          "new": "Christian McCaffrey",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 37.8
+        },
+        {
+          "slot": "QB",
+          "old": "Lamar Jackson",
+          "new": "Brock Purdy",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 33.5
+        },
+        {
+          "slot": "WR1",
+          "old": "Amon-Ra St. Brown",
+          "new": "Puka Nacua",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 27.3
+        },
+        {
+          "slot": "WR2",
+          "old": "Zay Flowers",
+          "new": "A.J. Brown",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 20.5
+        },
+        {
+          "slot": "FLEX",
+          "old": "Omarion Hampton",
+          "new": "Rashee Rice",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 19.3
+        },
+        {
+          "slot": "WR3",
+          "old": "Ladd McConkey",
+          "new": "Davante Adams",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 18.8
+        }
+      ],
+      "transfers_used": 6,
+      "transfers_available": null,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 139.5,
+      "team_counts": {
+        "SF": 2,
+        "GB": 1,
+        "LAR": 2,
+        "NE": 1,
+        "NYG": 1,
+        "KC": 1,
+        "LV": 1
+      },
+      "week_points": 182.0,
+      "running_total": 318.70000000000005
+    },
+    {
+      "gw": 3,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 33.5
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 37.8
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 14.6
+        },
+        "WR1": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 23.3
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 19.2
+        },
+        "WR3": {
+          "name": "Davante Adams",
+          "team": "LAR",
+          "price": 17.5,
+          "pts": 16.1
+        },
+        "TE": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 11.3
+        },
+        "FLEX": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 24.4
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 1.1
+      },
+      "moves": [],
+      "transfers_used": 0,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 2,
+      "cost": 139.5,
+      "team_counts": {
+        "SF": 2,
+        "GB": 1,
+        "LAR": 2,
+        "NE": 1,
+        "NYG": 1,
+        "KC": 1,
+        "LV": 1
+      },
+      "week_points": 181.29999999999998,
+      "running_total": 500.0
+    },
+    {
+      "gw": 4,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 23.7
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 26.7
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 13.8
+        },
+        "WR1": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 22.4
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 16.9
+        },
+        "WR3": {
+          "name": "Davante Adams",
+          "team": "LAR",
+          "price": 17.5,
+          "pts": 15.5
+        },
+        "TE": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 12.7
+        },
+        "FLEX": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 21.9
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.9
+      },
+      "moves": [],
+      "transfers_used": 0,
+      "transfers_available": 4,
+      "extra_paid": 0,
+      "banked_after": 4,
+      "cost": 139.5,
+      "team_counts": {
+        "SF": 2,
+        "GB": 1,
+        "LAR": 2,
+        "NE": 1,
+        "NYG": 1,
+        "KC": 1,
+        "LV": 1
+      },
+      "week_points": 154.5,
+      "running_total": 654.5
+    },
+    {
+      "gw": 5,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 21.9
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 32.8
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.8
+        },
+        "WR1": {
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "price": 20.0,
+          "pts": 25.3
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 23.7
+        },
+        "WR3": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 21.2
+        },
+        "TE": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 10.5
+        },
+        "FLEX": {
+          "name": "Mike Evans",
+          "team": "SF",
+          "price": 14.5,
+          "pts": 14.7
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.9
+      },
+      "moves": [
+        {
+          "slot": "FLEX",
+          "old": "Rashee Rice",
+          "new": "Ladd McConkey",
+          "reason": "real bye - forced out (shortlist)",
+          "pts": 10.9
+        },
+        {
+          "slot": "RB1",
+          "old": "Christian McCaffrey",
+          "new": "Jahmyr Gibbs",
+          "reason": "real upgrade (+8.0pts)",
+          "pts": 32.8
+        },
+        {
+          "slot": "WR1",
+          "old": "Puka Nacua",
+          "new": "Amon-Ra St. Brown",
+          "reason": "real upgrade (+4.1pts)",
+          "pts": 25.3
+        },
+        {
+          "slot": "FLEX",
+          "old": "Ladd McConkey",
+          "new": "Mike Evans",
+          "reason": "real upgrade (+3.8pts)",
+          "pts": 14.7
+        },
+        {
+          "slot": "WR3",
+          "old": "Davante Adams",
+          "new": "Puka Nacua",
+          "reason": "real upgrade (+6.5pts)",
+          "pts": 21.2
+        }
+      ],
+      "transfers_used": 5,
+      "transfers_available": 6,
+      "extra_paid": 0,
+      "banked_after": 1,
+      "cost": 139.5,
+      "team_counts": {
+        "SF": 2,
+        "DET": 2,
+        "GB": 1,
+        "NE": 1,
+        "LAR": 1,
+        "NYG": 1,
+        "LV": 1
+      },
+      "week_points": 163.8,
+      "running_total": 818.3
+    },
+    {
+      "gw": 6,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 27.7
+        },
+        "RB1": {
+          "name": "Kyren Williams",
+          "team": "LAR",
+          "price": 20.0,
+          "pts": 23.3
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.7
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 16.5
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 24.7
+        },
+        "WR3": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 33.0
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 12.6
+        },
+        "FLEX": {
+          "name": "Mike Evans",
+          "team": "SF",
+          "price": 14.5,
+          "pts": 18.5
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.9
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Jahmyr Gibbs",
+          "new": "Kyren Williams",
+          "reason": "real bye - forced out (shortlist)",
+          "pts": 23.3
+        },
+        {
+          "slot": "WR1",
+          "old": "Amon-Ra St. Brown",
+          "new": "Rashee Rice",
+          "reason": "real bye - forced out (shortlist)",
+          "pts": 16.5
+        },
+        {
+          "slot": "TE",
+          "old": "Isaiah Likely",
+          "new": "Travis Kelce",
+          "reason": "real upgrade (+2.2pts)",
+          "pts": 12.6
+        }
+      ],
+      "transfers_used": 3,
+      "transfers_available": 3,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 139.0,
+      "team_counts": {
+        "SF": 2,
+        "LAR": 2,
+        "GB": 1,
+        "KC": 2,
+        "NE": 1,
+        "LV": 1
+      },
+      "week_points": 169.9,
+      "running_total": 988.1999999999999
+    },
+    {
+      "gw": 7,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 28.0
+        },
+        "RB1": {
+          "name": "Kyren Williams",
+          "team": "LAR",
+          "price": 20.0,
+          "pts": 20.9
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 11.3
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 15.9
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 19.2
+        },
+        "WR3": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 29.7
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 12.2
+        },
+        "FLEX": {
+          "name": "Mike Evans",
+          "team": "SF",
+          "price": 14.5,
+          "pts": 18.8
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.8
+      },
+      "moves": [],
+      "transfers_used": 0,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 2,
+      "cost": 139.0,
+      "team_counts": {
+        "SF": 2,
+        "LAR": 2,
+        "GB": 1,
+        "KC": 2,
+        "NE": 1,
+        "LV": 1
+      },
+      "week_points": 156.8,
+      "running_total": 1145.0
+    },
+    {
+      "gw": 8,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Drake Maye",
+          "team": "NE",
+          "price": 21.0,
+          "pts": 30.0
+        },
+        "RB1": {
+          "name": "Kyren Williams",
+          "team": "LAR",
+          "price": 20.0,
+          "pts": 15.8
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 15.1
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 17.2
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 26.3
+        },
+        "WR3": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 22.4
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 13.2
+        },
+        "FLEX": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 0.0
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 1.3
+      },
+      "moves": [
+        {
+          "slot": "FLEX",
+          "old": "Mike Evans",
+          "new": "Isaiah Likely",
+          "reason": "real bye - forced out (shortlist)",
+          "pts": 0.0
+        },
+        {
+          "slot": "QB",
+          "old": "Brock Purdy",
+          "new": "Drake Maye",
+          "reason": "real bye - forced out (full-board search)",
+          "pts": 30.0
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 4,
+      "extra_paid": 0,
+      "banked_after": 2,
+      "cost": 139.0,
+      "team_counts": {
+        "NE": 2,
+        "LAR": 2,
+        "GB": 1,
+        "KC": 2,
+        "NYG": 1,
+        "LV": 1
+      },
+      "week_points": 141.3,
+      "running_total": 1286.3
+    },
+    {
+      "gw": 9,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 30.1
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 34.0
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.2
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 22.9
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 20.2
+        },
+        "WR3": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 27.3
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 17.5
+        },
+        "FLEX": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 8.6
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.9
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Drake Maye",
+          "new": "Brock Purdy",
+          "reason": "real upgrade (+7.0pts)",
+          "pts": 30.1
+        },
+        {
+          "slot": "RB1",
+          "old": "Kyren Williams",
+          "new": "Christian McCaffrey",
+          "reason": "real upgrade (+14.8pts)",
+          "pts": 34.0
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 4,
+      "extra_paid": 0,
+      "banked_after": 2,
+      "cost": 138.0,
+      "team_counts": {
+        "SF": 2,
+        "GB": 1,
+        "KC": 2,
+        "NE": 1,
+        "LAR": 1,
+        "NYG": 1,
+        "LV": 1
+      },
+      "week_points": 173.70000000000002,
+      "running_total": 1460.0
+    },
+    {
+      "gw": 10,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Matthew Stafford",
+          "team": "LAR",
+          "price": 18.0,
+          "pts": 31.2
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 27.3
+        },
+        "RB2": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 13.3
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 20.4
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 16.9
+        },
+        "WR3": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 33.0
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 15.6
+        },
+        "FLEX": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 10.5
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.9
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Brock Purdy",
+          "new": "Matthew Stafford",
+          "reason": "real upgrade (+7.0pts)",
+          "pts": 31.2
+        }
+      ],
+      "transfers_used": 1,
+      "transfers_available": 4,
+      "extra_paid": 0,
+      "banked_after": 3,
+      "cost": 138.0,
+      "team_counts": {
+        "LAR": 2,
+        "SF": 1,
+        "GB": 1,
+        "KC": 2,
+        "NE": 1,
+        "NYG": 1,
+        "LV": 1
+      },
+      "week_points": 169.1,
+      "running_total": 1629.1
+    },
+    {
+      "gw": 11,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 25.6
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 28.9
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 11.0
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 24.4
+        },
+        "WR2": {
+          "name": "Ladd McConkey",
+          "team": "LAC",
+          "price": 16.5,
+          "pts": 14.5
+        },
+        "WR3": {
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "price": 20.0,
+          "pts": 20.0
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 18.6
+        },
+        "FLEX": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 9.2
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 1.0
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Matthew Stafford",
+          "new": "Brock Purdy",
+          "reason": "real bye - forced out (shortlist)",
+          "pts": 25.6
+        },
+        {
+          "slot": "WR2",
+          "old": "A.J. Brown",
+          "new": "Ladd McConkey",
+          "reason": "real bye - forced out (shortlist)",
+          "pts": 14.5
+        },
+        {
+          "slot": "WR3",
+          "old": "Puka Nacua",
+          "new": "Amon-Ra St. Brown",
+          "reason": "real bye - forced out (shortlist)",
+          "pts": 20.0
+        },
+        {
+          "slot": "RB2",
+          "old": "MarShawn Lloyd",
+          "new": "J.K. Dobbins",
+          "reason": "real bye - forced out (full-board search)",
+          "pts": 11.0
+        }
+      ],
+      "transfers_used": 4,
+      "transfers_available": 5,
+      "extra_paid": 0,
+      "banked_after": 1,
+      "cost": 138.5,
+      "team_counts": {
+        "SF": 2,
+        "DEN": 1,
+        "KC": 2,
+        "LAC": 1,
+        "DET": 1,
+        "NYG": 1,
+        "LV": 1
+      },
+      "week_points": 153.2,
+      "running_total": 1782.3
+    },
+    {
+      "gw": 12,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Matthew Stafford",
+          "team": "LAR",
+          "price": 18.0,
+          "pts": 24.0
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 24.8
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 9.5
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 15.7
+        },
+        "WR2": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 17.8
+        },
+        "WR3": {
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "price": 20.0,
+          "pts": 18.4
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 12.0
+        },
+        "FLEX": {
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "price": 11.5,
+          "pts": 10.0
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 1.3
+      },
+      "moves": [
+        {
+          "slot": "WR2",
+          "old": "Ladd McConkey",
+          "new": "A.J. Brown",
+          "reason": "real upgrade (+7.1pts)",
+          "pts": 17.8
+        },
+        {
+          "slot": "QB",
+          "old": "Brock Purdy",
+          "new": "Matthew Stafford",
+          "reason": "real upgrade (+2.1pts)",
+          "pts": 24.0
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 3,
+      "extra_paid": 0,
+      "banked_after": 1,
+      "cost": 139.5,
+      "team_counts": {
+        "LAR": 1,
+        "SF": 1,
+        "DEN": 1,
+        "KC": 2,
+        "NE": 1,
+        "DET": 1,
+        "NYG": 1,
+        "LV": 1
+      },
+      "week_points": 133.5,
+      "running_total": 1915.8
+    },
+    {
+      "gw": 13,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 27.7
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 31.2
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 12.2
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 14.4
+        },
+        "WR2": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 22.4
+        },
+        "WR3": {
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "price": 20.0,
+          "pts": 21.2
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 11.0
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 14.3
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.0
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Matthew Stafford",
+          "new": "Brock Purdy",
+          "reason": "real upgrade (+6.5pts)",
+          "pts": 27.7
+        },
+        {
+          "slot": "FLEX",
+          "old": "Isaiah Likely",
+          "new": "MarShawn Lloyd",
+          "reason": "real upgrade (+5.9pts)",
+          "pts": 14.3
+        },
+        {
+          "slot": "WR2",
+          "old": "A.J. Brown",
+          "new": "Puka Nacua",
+          "reason": "real upgrade (+5.5pts)",
+          "pts": 22.4
+        }
+      ],
+      "transfers_used": 3,
+      "transfers_available": 3,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 140.0,
+      "team_counts": {
+        "SF": 2,
+        "DEN": 1,
+        "KC": 2,
+        "LAR": 1,
+        "DET": 1,
+        "GB": 1,
+        "LV": 1
+      },
+      "week_points": 154.4,
+      "running_total": 2070.2
+    },
+    {
+      "gw": 14,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 19.8
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 29.4
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 11.5
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 16.4
+        },
+        "WR2": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 22.0
+        },
+        "WR3": {
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "price": 20.0,
+          "pts": 22.6
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 12.5
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 11.3
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.9
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Christian McCaffrey",
+          "new": "Jahmyr Gibbs",
+          "reason": "real upgrade (+7.0pts)",
+          "pts": 29.4
+        }
+      ],
+      "transfers_used": 1,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 1,
+      "cost": 139.5,
+      "team_counts": {
+        "SF": 1,
+        "DET": 2,
+        "DEN": 1,
+        "KC": 2,
+        "LAR": 1,
+        "GB": 1,
+        "LV": 1
+      },
+      "week_points": 146.4,
+      "running_total": 2216.6
+    },
+    {
+      "gw": 15,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 22.7
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 25.1
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 11.0
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 16.9
+        },
+        "WR2": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 23.9
+        },
+        "WR3": {
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "price": 20.0,
+          "pts": 19.3
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 13.0
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 17.5
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 1.0
+      },
+      "moves": [],
+      "transfers_used": 0,
+      "transfers_available": 3,
+      "extra_paid": 0,
+      "banked_after": 3,
+      "cost": 139.5,
+      "team_counts": {
+        "SF": 1,
+        "DET": 2,
+        "DEN": 1,
+        "KC": 2,
+        "LAR": 1,
+        "GB": 1,
+        "LV": 1
+      },
+      "week_points": 150.4,
+      "running_total": 2367.0
+    },
+    {
+      "gw": 16,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Lamar Jackson",
+          "team": "BAL",
+          "price": 20.0,
+          "pts": 25.8
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 27.1
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 7.9
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 16.2
+        },
+        "WR2": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 21.6
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 24.7
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 12.4
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.8
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 1.2
+      },
+      "moves": [
+        {
+          "slot": "WR3",
+          "old": "Amon-Ra St. Brown",
+          "new": "A.J. Brown",
+          "reason": "real upgrade (+3.8pts)",
+          "pts": 24.7
+        },
+        {
+          "slot": "QB",
+          "old": "Brock Purdy",
+          "new": "Lamar Jackson",
+          "reason": "real upgrade (+3.1pts)",
+          "pts": 25.8
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 5,
+      "extra_paid": 0,
+      "banked_after": 3,
+      "cost": 139.0,
+      "team_counts": {
+        "BAL": 1,
+        "DET": 1,
+        "DEN": 1,
+        "KC": 2,
+        "LAR": 1,
+        "NE": 1,
+        "GB": 1,
+        "LV": 1
+      },
+      "week_points": 149.7,
+      "running_total": 2516.7
+    },
+    {
+      "gw": 17,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Matthew Stafford",
+          "team": "LAR",
+          "price": 18.0,
+          "pts": 24.7
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 23.9
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 8.5
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 16.5
+        },
+        "WR2": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 26.1
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 18.6
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 12.6
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.3
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 1.4
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Lamar Jackson",
+          "new": "Matthew Stafford",
+          "reason": "real upgrade (+6.3pts)",
+          "pts": 24.7
+        }
+      ],
+      "transfers_used": 1,
+      "transfers_available": 5,
+      "extra_paid": 0,
+      "banked_after": 4,
+      "cost": 137.0,
+      "team_counts": {
+        "LAR": 2,
+        "DET": 1,
+        "DEN": 1,
+        "KC": 2,
+        "NE": 1,
+        "GB": 1,
+        "LV": 1
+      },
+      "week_points": 144.6,
+      "running_total": 2661.2999999999997
+    },
+    {
+      "gw": 18,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 33.5
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 37.8
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 8.3
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 21.9
+        },
+        "WR2": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 21.6
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 26.3
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 16.8
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 11.3
+        }
+      },
+      "dst": {
+        "name": "Las Vegas Raiders D/ST",
+        "team": "LV",
+        "price": 7.0,
+        "pts": 0.9
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Matthew Stafford",
+          "new": "Brock Purdy",
+          "reason": "real upgrade (+13.1pts)",
+          "pts": 33.5
+        },
+        {
+          "slot": "RB1",
+          "old": "Jahmyr Gibbs",
+          "new": "Christian McCaffrey",
+          "reason": "real upgrade (+12.5pts)",
+          "pts": 37.8
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 6,
+      "extra_paid": 0,
+      "banked_after": 4,
+      "cost": 137.5,
+      "team_counts": {
+        "SF": 2,
+        "DEN": 1,
+        "KC": 2,
+        "LAR": 1,
+        "NE": 1,
+        "GB": 1,
+        "LV": 1
+      },
+      "week_points": 178.4,
+      "running_total": 2839.7
+    }
+  ]
+}

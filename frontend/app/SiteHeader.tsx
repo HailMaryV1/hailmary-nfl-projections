@@ -13,22 +13,12 @@ export default function SiteHeader() {
           <Link href="/fixtures" className="text-sm text-navy-300 hover:text-sky-300">
             Fixtures
           </Link>
-          <a
-            href="https://claude.ai/code/artifact/4c11bf51-1931-4004-adae-0d202c8e68d5"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-navy-300 hover:text-sky-300"
-          >
+          <Link href="/playbook" className="text-sm text-navy-300 hover:text-sky-300">
             My Playbook
-          </a>
-          <a
-            href="https://claude.ai/code/artifact/6ac20777-395e-411e-9a65-210f5a8d3f38"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-navy-300 hover:text-sky-300"
-          >
+          </Link>
+          <Link href="/playbook/auto-draft" className="text-sm text-navy-300 hover:text-sky-300">
             Auto-Draft
-          </a>
+          </Link>
           <Link href="/admin" className="text-xs text-navy-500 hover:text-sky-300">
             Admin
           </Link>

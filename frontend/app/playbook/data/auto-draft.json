@@ -1,0 +1,1709 @@
+{
+  "total_points": 3007.2999999999997,
+  "extra_transfer_weeks": [
+    8,
+    11
+  ],
+  "weeks": [
+    {
+      "gw": 1,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Justin Herbert",
+          "team": "LAC",
+          "price": 17.5,
+          "pts": 25.3
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 26.9
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 10.9
+        },
+        "WR1": {
+          "name": "Garrett Wilson",
+          "team": "NYJ",
+          "price": 14.5,
+          "pts": 16.8
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 19.8
+        },
+        "WR3": {
+          "name": "Parker Washington",
+          "team": "JAX",
+          "price": 17.0,
+          "pts": 19.2
+        },
+        "TE": {
+          "name": "Brock Bowers",
+          "team": "LV",
+          "price": 18.0,
+          "pts": 17.7
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 13.3
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 2.0
+      },
+      "moves": [],
+      "transfers_used": 0,
+      "transfers_available": null,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 132.0,
+      "team_counts": {
+        "LAC": 1,
+        "DET": 1,
+        "SEA": 1,
+        "NYJ": 1,
+        "NO": 1,
+        "JAX": 2,
+        "LV": 1,
+        "GB": 1
+      },
+      "week_points": 151.9,
+      "running_total": 151.9
+    },
+    {
+      "gw": 2,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Justin Herbert",
+          "team": "LAC",
+          "price": 17.5,
+          "pts": 22.8
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 37.8
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 15.8
+        },
+        "WR1": {
+          "name": "Garrett Wilson",
+          "team": "NYJ",
+          "price": 14.5,
+          "pts": 14.5
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 19.3
+        },
+        "WR3": {
+          "name": "Jaxon Smith-Njigba",
+          "team": "SEA",
+          "price": 22.0,
+          "pts": 29.4
+        },
+        "TE": {
+          "name": "Brock Bowers",
+          "team": "LV",
+          "price": 18.0,
+          "pts": 12.0
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 16.4
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.5
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Jahmyr Gibbs",
+          "new": "Christian McCaffrey",
+          "reason": "real upgrade (+16.7pts)",
+          "pts": 37.8
+        },
+        {
+          "slot": "WR3",
+          "old": "Parker Washington",
+          "new": "Jaxon Smith-Njigba",
+          "reason": "real upgrade (+15.0pts)",
+          "pts": 29.4
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 137.5,
+      "team_counts": {
+        "LAC": 1,
+        "SF": 1,
+        "SEA": 2,
+        "NYJ": 1,
+        "NO": 1,
+        "LV": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 169.5,
+      "running_total": 321.4
+    },
+    {
+      "gw": 3,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 33.5
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 37.8
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 13.0
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 24.4
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 27.7
+        },
+        "WR3": {
+          "name": "Jaxon Smith-Njigba",
+          "team": "SEA",
+          "price": 22.0,
+          "pts": 24.2
+        },
+        "TE": {
+          "name": "Brock Bowers",
+          "team": "LV",
+          "price": 18.0,
+          "pts": 14.5
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 14.6
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.4
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Justin Herbert",
+          "new": "Brock Purdy",
+          "reason": "real upgrade (+17.2pts)",
+          "pts": 33.5
+        },
+        {
+          "slot": "WR1",
+          "old": "Garrett Wilson",
+          "new": "Rashee Rice",
+          "reason": "real upgrade (+12.3pts)",
+          "pts": 24.4
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 140.0,
+      "team_counts": {
+        "SF": 2,
+        "SEA": 2,
+        "KC": 1,
+        "NO": 1,
+        "LV": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 191.1,
+      "running_total": 512.5
+    },
+    {
+      "gw": 4,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Jaxson Dart",
+          "team": "NYG",
+          "price": 18.0,
+          "pts": 30.3
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 26.7
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 10.7
+        },
+        "WR1": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 21.9
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 25.8
+        },
+        "WR3": {
+          "name": "Justin Jefferson",
+          "team": "MIN",
+          "price": 19.0,
+          "pts": 25.4
+        },
+        "TE": {
+          "name": "Brock Bowers",
+          "team": "LV",
+          "price": 18.0,
+          "pts": 12.0
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 13.8
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.4
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Brock Purdy",
+          "new": "Jaxson Dart",
+          "reason": "real upgrade (+6.6pts)",
+          "pts": 30.3
+        },
+        {
+          "slot": "WR3",
+          "old": "Jaxon Smith-Njigba",
+          "new": "Justin Jefferson",
+          "reason": "real upgrade (+5.5pts)",
+          "pts": 25.4
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 137.0,
+      "team_counts": {
+        "NYG": 1,
+        "SF": 1,
+        "SEA": 1,
+        "KC": 1,
+        "NO": 1,
+        "MIN": 1,
+        "LV": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 168.0,
+      "running_total": 680.5
+    },
+    {
+      "gw": 5,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Jaxson Dart",
+          "team": "NYG",
+          "price": 18.0,
+          "pts": 25.0
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 32.8
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 10.5
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 25.0
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 23.5
+        },
+        "WR3": {
+          "name": "Justin Jefferson",
+          "team": "MIN",
+          "price": 19.0,
+          "pts": 20.8
+        },
+        "TE": {
+          "name": "Brock Bowers",
+          "team": "LV",
+          "price": 18.0,
+          "pts": 12.3
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.8
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.4
+      },
+      "moves": [
+        {
+          "slot": "WR1",
+          "old": "Rashee Rice",
+          "new": "Nico Collins",
+          "reason": "real bye - forced out",
+          "pts": 25.0
+        },
+        {
+          "slot": "RB1",
+          "old": "Christian McCaffrey",
+          "new": "Jahmyr Gibbs",
+          "reason": "real upgrade (+8.0pts)",
+          "pts": 32.8
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 139.5,
+      "team_counts": {
+        "NYG": 1,
+        "DET": 1,
+        "SEA": 1,
+        "HOU": 1,
+        "NO": 1,
+        "MIN": 1,
+        "LV": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 164.1,
+      "running_total": 844.6
+    },
+    {
+      "gw": 6,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Jaxson Dart",
+          "team": "NYG",
+          "price": 18.0,
+          "pts": 24.9
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 31.2
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 11.1
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 20.4
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 25.4
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 24.7
+        },
+        "TE": {
+          "name": "Brock Bowers",
+          "team": "LV",
+          "price": 18.0,
+          "pts": 11.4
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.7
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.5
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Jahmyr Gibbs",
+          "new": "Christian McCaffrey",
+          "reason": "real bye - forced out",
+          "pts": 31.2
+        },
+        {
+          "slot": "WR3",
+          "old": "Justin Jefferson",
+          "new": "A.J. Brown",
+          "reason": "real bye - forced out",
+          "pts": 24.7
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 138.5,
+      "team_counts": {
+        "NYG": 1,
+        "SF": 1,
+        "SEA": 1,
+        "HOU": 1,
+        "NO": 1,
+        "NE": 1,
+        "LV": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 163.29999999999998,
+      "running_total": 1007.9
+    },
+    {
+      "gw": 7,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Matthew Stafford",
+          "team": "LAR",
+          "price": 18.0,
+          "pts": 28.1
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 31.7
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 10.7
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 23.1
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 24.0
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 19.2
+        },
+        "TE": {
+          "name": "Trey McBride",
+          "team": "ARI",
+          "price": 19.0,
+          "pts": 17.2
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 11.3
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 0.0
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Jaxson Dart",
+          "new": "Matthew Stafford",
+          "reason": "real upgrade (+6.9pts)",
+          "pts": 28.1
+        },
+        {
+          "slot": "TE",
+          "old": "Brock Bowers",
+          "new": "Trey McBride",
+          "reason": "real upgrade (+6.7pts)",
+          "pts": 17.2
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 139.5,
+      "team_counts": {
+        "LAR": 1,
+        "SF": 1,
+        "SEA": 1,
+        "HOU": 1,
+        "NO": 1,
+        "NE": 1,
+        "ARI": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 165.3,
+      "running_total": 1173.2
+    },
+    {
+      "gw": 8,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Matthew Stafford",
+          "team": "LAR",
+          "price": 18.0,
+          "pts": 21.2
+        },
+        "RB1": {
+          "name": "Rhamondre Stevenson",
+          "team": "NE",
+          "price": 16.5,
+          "pts": 27.0
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 11.5
+        },
+        "WR1": {
+          "name": "CeeDee Lamb",
+          "team": "DAL",
+          "price": 19.0,
+          "pts": 24.0
+        },
+        "WR2": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 22.4
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 26.3
+        },
+        "TE": {
+          "name": "Trey McBride",
+          "team": "ARI",
+          "price": 19.0,
+          "pts": 17.7
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 15.1
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.6
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Christian McCaffrey",
+          "new": "Rhamondre Stevenson",
+          "reason": "real bye - forced out",
+          "pts": 27.0
+        },
+        {
+          "slot": "WR1",
+          "old": "Nico Collins",
+          "new": "CeeDee Lamb",
+          "reason": "real bye - forced out",
+          "pts": 24.0
+        },
+        {
+          "slot": "WR2",
+          "old": "Chris Olave",
+          "new": "Puka Nacua",
+          "reason": "real bye - forced out",
+          "pts": 22.4
+        }
+      ],
+      "transfers_used": 3,
+      "transfers_available": 2,
+      "extra_paid": 1,
+      "banked_after": 0,
+      "cost": 137.0,
+      "team_counts": {
+        "LAR": 2,
+        "NE": 2,
+        "SEA": 1,
+        "DAL": 1,
+        "ARI": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 158.79999999999998,
+      "running_total": 1332.0
+    },
+    {
+      "gw": 9,
+      "is_wildcard": true,
+      "roster": {
+        "QB": {
+          "name": "Brock Purdy",
+          "team": "SF",
+          "price": 18.0,
+          "pts": 30.1
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 34.0
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 15.8
+        },
+        "WR1": {
+          "name": "Jaxon Smith-Njigba",
+          "team": "SEA",
+          "price": 22.0,
+          "pts": 29.4
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 29.0
+        },
+        "WR3": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 22.9
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 17.5
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.2
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.3
+      },
+      "moves": [
+        {
+          "slot": "WR1",
+          "old": "CeeDee Lamb",
+          "new": "Jaxon Smith-Njigba",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 29.4
+        },
+        {
+          "slot": "QB",
+          "old": "Matthew Stafford",
+          "new": "Brock Purdy",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 30.1
+        },
+        {
+          "slot": "WR3",
+          "old": "A.J. Brown",
+          "new": "Rashee Rice",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 22.9
+        },
+        {
+          "slot": "WR2",
+          "old": "Puka Nacua",
+          "new": "Chris Olave",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 29.0
+        },
+        {
+          "slot": "RB1",
+          "old": "Rhamondre Stevenson",
+          "new": "Jonathan Taylor",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 23.7
+        },
+        {
+          "slot": "TE",
+          "old": "Trey McBride",
+          "new": "Travis Kelce",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 17.5
+        },
+        {
+          "slot": "RB1",
+          "old": "Jonathan Taylor",
+          "new": "Christian McCaffrey",
+          "reason": "Wildcard - free reshuffle",
+          "pts": 34.0
+        }
+      ],
+      "transfers_used": 7,
+      "transfers_available": null,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 138.0,
+      "team_counts": {
+        "SF": 2,
+        "SEA": 2,
+        "NO": 1,
+        "KC": 2,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 192.20000000000002,
+      "running_total": 1524.2
+    },
+    {
+      "gw": 10,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Daniel Jones",
+          "team": "IND",
+          "price": 17.0,
+          "pts": 31.6
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 27.3
+        },
+        "RB2": {
+          "name": "Jadarian Price",
+          "team": "SEA",
+          "price": 8.5,
+          "pts": 14.2
+        },
+        "WR1": {
+          "name": "Puka Nacua",
+          "team": "LAR",
+          "price": 22.0,
+          "pts": 33.0
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 26.7
+        },
+        "WR3": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 20.4
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 15.6
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 13.3
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.9
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Brock Purdy",
+          "new": "Daniel Jones",
+          "reason": "real upgrade (+7.4pts)",
+          "pts": 31.6
+        },
+        {
+          "slot": "WR1",
+          "old": "Jaxon Smith-Njigba",
+          "new": "Puka Nacua",
+          "reason": "real upgrade (+6.6pts)",
+          "pts": 33.0
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 137.0,
+      "team_counts": {
+        "IND": 1,
+        "SF": 1,
+        "SEA": 1,
+        "LAR": 1,
+        "NO": 1,
+        "KC": 2,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 184.0,
+      "running_total": 1708.2
+    },
+    {
+      "gw": 11,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Daniel Jones",
+          "team": "IND",
+          "price": 17.0,
+          "pts": 22.1
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 28.9
+        },
+        "RB2": {
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "price": 11.0,
+          "pts": 11.0
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 22.1
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 22.5
+        },
+        "WR3": {
+          "name": "Rashee Rice",
+          "team": "KC",
+          "price": 16.5,
+          "pts": 24.4
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 18.6
+        },
+        "FLEX": {
+          "name": "De'Zhaun Stribling",
+          "team": "SF",
+          "price": 9.0,
+          "pts": 11.6
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.7
+      },
+      "moves": [
+        {
+          "slot": "RB2",
+          "old": "Jadarian Price",
+          "new": "J.K. Dobbins",
+          "reason": "real bye - forced out",
+          "pts": 11.0
+        },
+        {
+          "slot": "WR1",
+          "old": "Puka Nacua",
+          "new": "Nico Collins",
+          "reason": "real bye - forced out",
+          "pts": 22.1
+        },
+        {
+          "slot": "FLEX",
+          "old": "MarShawn Lloyd",
+          "new": "De'Zhaun Stribling",
+          "reason": "real bye - forced out",
+          "pts": 11.6
+        }
+      ],
+      "transfers_used": 3,
+      "transfers_available": 2,
+      "extra_paid": 1,
+      "banked_after": 0,
+      "cost": 138.5,
+      "team_counts": {
+        "IND": 1,
+        "SF": 2,
+        "DEN": 1,
+        "HOU": 1,
+        "NO": 1,
+        "KC": 2,
+        "JAX": 1
+      },
+      "week_points": 154.89999999999998,
+      "running_total": 1863.1
+    },
+    {
+      "gw": 12,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Daniel Jones",
+          "team": "IND",
+          "price": 17.0,
+          "pts": 26.1
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 24.8
+        },
+        "RB2": {
+          "name": "Aaron Jones Sr.",
+          "team": "MIN",
+          "price": 11.0,
+          "pts": 13.7
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 17.5
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 20.7
+        },
+        "WR3": {
+          "name": "Terry McLaurin",
+          "team": "WAS",
+          "price": 16.5,
+          "pts": 20.2
+        },
+        "TE": {
+          "name": "Travis Kelce",
+          "team": "KC",
+          "price": 16.0,
+          "pts": 12.0
+        },
+        "FLEX": {
+          "name": "De'Zhaun Stribling",
+          "team": "SF",
+          "price": 9.0,
+          "pts": 9.9
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.9
+      },
+      "moves": [
+        {
+          "slot": "WR3",
+          "old": "Rashee Rice",
+          "new": "Terry McLaurin",
+          "reason": "real upgrade (+4.5pts)",
+          "pts": 20.2
+        },
+        {
+          "slot": "RB2",
+          "old": "J.K. Dobbins",
+          "new": "Aaron Jones Sr.",
+          "reason": "real upgrade (+4.2pts)",
+          "pts": 13.7
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 138.5,
+      "team_counts": {
+        "IND": 1,
+        "SF": 2,
+        "MIN": 1,
+        "HOU": 1,
+        "NO": 1,
+        "WAS": 1,
+        "KC": 1,
+        "JAX": 1
+      },
+      "week_points": 146.8,
+      "running_total": 2009.8999999999999
+    },
+    {
+      "gw": 13,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Bo Nix",
+          "team": "DEN",
+          "price": 18.5,
+          "pts": 26.9
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 31.2
+        },
+        "RB2": {
+          "name": "Aaron Jones Sr.",
+          "team": "MIN",
+          "price": 11.0,
+          "pts": 14.1
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 21.8
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 23.7
+        },
+        "WR3": {
+          "name": "Terry McLaurin",
+          "team": "WAS",
+          "price": 16.5,
+          "pts": 18.1
+        },
+        "TE": {
+          "name": "Dallas Goedert",
+          "team": "PHI",
+          "price": 14.5,
+          "pts": 13.5
+        },
+        "FLEX": {
+          "name": "De'Zhaun Stribling",
+          "team": "SF",
+          "price": 9.0,
+          "pts": 12.5
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.5
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Daniel Jones",
+          "new": "Bo Nix",
+          "reason": "real bye - forced out",
+          "pts": 26.9
+        },
+        {
+          "slot": "TE",
+          "old": "Travis Kelce",
+          "new": "Dallas Goedert",
+          "reason": "real upgrade (+2.5pts)",
+          "pts": 13.5
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 138.5,
+      "team_counts": {
+        "DEN": 1,
+        "SF": 2,
+        "MIN": 1,
+        "HOU": 1,
+        "NO": 1,
+        "WAS": 1,
+        "PHI": 1,
+        "JAX": 1
+      },
+      "week_points": 163.3,
+      "running_total": 2173.2
+    },
+    {
+      "gw": 14,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Bo Nix",
+          "team": "DEN",
+          "price": 18.5,
+          "pts": 25.3
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 29.4
+        },
+        "RB2": {
+          "name": "Aaron Jones Sr.",
+          "team": "MIN",
+          "price": 11.0,
+          "pts": 11.3
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 23.1
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 26.7
+        },
+        "WR3": {
+          "name": "Jaylen Waddle",
+          "team": "DEN",
+          "price": 17.5,
+          "pts": 20.6
+        },
+        "TE": {
+          "name": "Dallas Goedert",
+          "team": "PHI",
+          "price": 14.5,
+          "pts": 10.7
+        },
+        "FLEX": {
+          "name": "De'Zhaun Stribling",
+          "team": "SF",
+          "price": 9.0,
+          "pts": 9.0
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.6
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Christian McCaffrey",
+          "new": "Jahmyr Gibbs",
+          "reason": "real upgrade (+7.0pts)",
+          "pts": 29.4
+        },
+        {
+          "slot": "WR3",
+          "old": "Terry McLaurin",
+          "new": "Jaylen Waddle",
+          "reason": "real upgrade (+6.4pts)",
+          "pts": 20.6
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 139.0,
+      "team_counts": {
+        "DEN": 2,
+        "DET": 1,
+        "MIN": 1,
+        "HOU": 1,
+        "NO": 1,
+        "PHI": 1,
+        "SF": 1,
+        "JAX": 1
+      },
+      "week_points": 157.7,
+      "running_total": 2330.8999999999996
+    },
+    {
+      "gw": 15,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Bo Nix",
+          "team": "DEN",
+          "price": 18.5,
+          "pts": 24.2
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 25.1
+        },
+        "RB2": {
+          "name": "Aaron Jones Sr.",
+          "team": "MIN",
+          "price": 11.0,
+          "pts": 10.5
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 20.4
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 24.4
+        },
+        "WR3": {
+          "name": "Jaylen Waddle",
+          "team": "DEN",
+          "price": 17.5,
+          "pts": 19.8
+        },
+        "TE": {
+          "name": "Tyler Warren",
+          "team": "IND",
+          "price": 17.0,
+          "pts": 14.9
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 17.5
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.5
+      },
+      "moves": [
+        {
+          "slot": "FLEX",
+          "old": "De'Zhaun Stribling",
+          "new": "MarShawn Lloyd",
+          "reason": "real upgrade (+7.2pts)",
+          "pts": 17.5
+        },
+        {
+          "slot": "TE",
+          "old": "Dallas Goedert",
+          "new": "Tyler Warren",
+          "reason": "real upgrade (+6.1pts)",
+          "pts": 14.9
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 140.0,
+      "team_counts": {
+        "DEN": 2,
+        "DET": 1,
+        "MIN": 1,
+        "HOU": 1,
+        "NO": 1,
+        "IND": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 158.3,
+      "running_total": 2489.2
+    },
+    {
+      "gw": 16,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Tyler Shough",
+          "team": "NO",
+          "price": 16.0,
+          "pts": 28.6
+        },
+        "RB1": {
+          "name": "Jahmyr Gibbs",
+          "team": "DET",
+          "price": 21.5,
+          "pts": 27.1
+        },
+        "RB2": {
+          "name": "Aaron Jones Sr.",
+          "team": "MIN",
+          "price": 11.0,
+          "pts": 13.5
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 18.9
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 30.8
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 24.7
+        },
+        "TE": {
+          "name": "Tyler Warren",
+          "team": "IND",
+          "price": 17.0,
+          "pts": 11.2
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.8
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.5
+      },
+      "moves": [
+        {
+          "slot": "QB",
+          "old": "Bo Nix",
+          "new": "Tyler Shough",
+          "reason": "real upgrade (+11.3pts)",
+          "pts": 28.6
+        },
+        {
+          "slot": "WR3",
+          "old": "Jaylen Waddle",
+          "new": "A.J. Brown",
+          "reason": "real upgrade (+10.6pts)",
+          "pts": 24.7
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 137.5,
+      "team_counts": {
+        "NO": 2,
+        "DET": 1,
+        "MIN": 1,
+        "HOU": 1,
+        "NE": 1,
+        "IND": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 169.1,
+      "running_total": 2658.2999999999997
+    },
+    {
+      "gw": 17,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Tyler Shough",
+          "team": "NO",
+          "price": 16.0,
+          "pts": 23.9
+        },
+        "RB1": {
+          "name": "Jonathan Taylor",
+          "team": "IND",
+          "price": 20.5,
+          "pts": 30.7
+        },
+        "RB2": {
+          "name": "Aaron Jones Sr.",
+          "team": "MIN",
+          "price": 11.0,
+          "pts": 15.3
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 21.5
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 25.8
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 18.6
+        },
+        "TE": {
+          "name": "Trey McBride",
+          "team": "ARI",
+          "price": 19.0,
+          "pts": 22.0
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 12.3
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.7
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Jahmyr Gibbs",
+          "new": "Jonathan Taylor",
+          "reason": "real upgrade (+6.8pts)",
+          "pts": 30.7
+        },
+        {
+          "slot": "TE",
+          "old": "Tyler Warren",
+          "new": "Trey McBride",
+          "reason": "real upgrade (+6.3pts)",
+          "pts": 22.0
+        }
+      ],
+      "transfers_used": 2,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 0,
+      "cost": 138.5,
+      "team_counts": {
+        "NO": 2,
+        "IND": 1,
+        "MIN": 1,
+        "HOU": 1,
+        "NE": 1,
+        "ARI": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 171.79999999999998,
+      "running_total": 2830.1
+    },
+    {
+      "gw": 18,
+      "is_wildcard": false,
+      "roster": {
+        "QB": {
+          "name": "Tyler Shough",
+          "team": "NO",
+          "price": 16.0,
+          "pts": 22.6
+        },
+        "RB1": {
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "price": 22.0,
+          "pts": 37.8
+        },
+        "RB2": {
+          "name": "Aaron Jones Sr.",
+          "team": "MIN",
+          "price": 11.0,
+          "pts": 11.9
+        },
+        "WR1": {
+          "name": "Nico Collins",
+          "team": "HOU",
+          "price": 19.5,
+          "pts": 25.0
+        },
+        "WR2": {
+          "name": "Chris Olave",
+          "team": "NO",
+          "price": 18.5,
+          "pts": 24.4
+        },
+        "WR3": {
+          "name": "A.J. Brown",
+          "team": "NE",
+          "price": 17.5,
+          "pts": 26.3
+        },
+        "TE": {
+          "name": "Trey McBride",
+          "team": "ARI",
+          "price": 19.0,
+          "pts": 16.3
+        },
+        "FLEX": {
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "price": 7.5,
+          "pts": 11.3
+        }
+      },
+      "dst": {
+        "name": "Jacksonville Jaguars D/ST",
+        "team": "JAX",
+        "price": 9.0,
+        "pts": 1.6
+      },
+      "moves": [
+        {
+          "slot": "RB1",
+          "old": "Jonathan Taylor",
+          "new": "Christian McCaffrey",
+          "reason": "real upgrade (+13.9pts)",
+          "pts": 37.8
+        }
+      ],
+      "transfers_used": 1,
+      "transfers_available": 2,
+      "extra_paid": 0,
+      "banked_after": 1,
+      "cost": 140.0,
+      "team_counts": {
+        "NO": 2,
+        "SF": 1,
+        "MIN": 1,
+        "HOU": 1,
+        "NE": 1,
+        "ARI": 1,
+        "GB": 1,
+        "JAX": 1
+      },
+      "week_points": 177.2,
+      "running_total": 3007.2999999999997
+    }
+  ]
+}
