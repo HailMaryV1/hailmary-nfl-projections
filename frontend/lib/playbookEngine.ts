@@ -136,75 +136,122 @@ function validAfterSwap(roster: Roster, byName: Map<string, PoolPlayer>, slot: S
   return true;
 }
 
-/** Real fantasy-optimizer heuristic: best-slot-ignoring-budget, then
- * repeatedly downgrade whichever swap loses the fewest real points per
- * pound saved until under the real budget cap. Pool-only - the pool's
- * own tier structure guarantees a legal squad exists. */
+/** All k-element subsets of items, as index arrays into items (small k/n
+ * here - at most C(8,3)=56 - so plain recursion is fine). */
+function combinations<T>(items: T[], k: number): T[][] {
+  const results: T[][] = [];
+  const combo: T[] = [];
+  function go(start: number) {
+    if (combo.length === k) {
+      results.push([...combo]);
+      return;
+    }
+    for (let i = start; i < items.length; i++) {
+      combo.push(items[i]);
+      go(i + 1);
+      combo.pop();
+    }
+  }
+  go(0);
+  return results;
+}
+
+function addCount(counts: Record<string, number>, teamAbbr: string): Record<string, number> {
+  return { ...counts, [teamAbbr]: (counts[teamAbbr] ?? 0) + 1 };
+}
+function overCap(counts: Record<string, number>): boolean {
+  return Object.values(counts).some((c) => c > MAX_PER_TEAM);
+}
+
+/**
+ * Real exhaustive best-squad search, not a greedy heuristic - the pool is
+ * small (28 players) so every legal QB + DST + RB-pair + WR-triple + TE +
+ * FLEX combination is genuinely checkable (a few hundred thousand
+ * combinations, well under a second). This replaces an earlier
+ * single-swap "downgrade" heuristic that could report a pool infeasible
+ * even when a legal squad existed, whenever the only route to one
+ * required changing two slots at once to route around the real 2-per-
+ * team cap (confirmed live 2026-09-09) - exhaustive search has no such
+ * blind spot: every legal combination is actually tried.
+ */
 export function solveInitialSquad(pool: PoolPlayer[]): Roster {
-  const byName = new Map(pool.map((p) => [p.name, p]));
-  const byPosition = new Map<Position, PoolPlayer[]>();
-  for (const p of pool) {
-    const list = byPosition.get(p.position) ?? [];
-    list.push(p);
-    byPosition.set(p.position, list);
-  }
-  for (const list of byPosition.values()) list.sort((a, b) => b.gw1TotalPoints - a.gw1TotalPoints);
+  const qbs = pool.filter((p) => p.position === "quarterback");
+  const rbs = pool.filter((p) => p.position === "running_back");
+  const wrs = pool.filter((p) => p.position === "wide_receiver");
+  const tes = pool.filter((p) => p.position === "tight_end");
+  const dsts = pool.filter((p) => p.position === "defense_special");
 
-  const used = new Set<string>();
-  const counts: Record<string, number> = {};
-  const roster = {} as Roster;
+  const rbPairs = combinations(rbs, 2);
+  const wrTriples = combinations(wrs, 3);
 
-  function pickBest(candidates: PoolPlayer[]): PoolPlayer {
-    const pick = candidates.find((p) => !used.has(p.name) && (counts[p.teamAbbr] ?? 0) < MAX_PER_TEAM);
-    if (!pick) throw new Error("Pool exhausted while building the initial squad - this should not happen with a real 28-player pool.");
-    return pick;
-  }
+  let best: { roster: Roster; points: number } | null = null;
 
-  for (const slot of SLOT_KEYS) {
-    if (slot === "FLEX") continue;
-    const positions = SLOT_POSITIONS[slot];
-    const pick = pickBest(byPosition.get(positions[0]) ?? []);
-    roster[slot] = pick.name;
-    used.add(pick.name);
-    counts[pick.teamAbbr] = (counts[pick.teamAbbr] ?? 0) + 1;
-  }
-  const flexPool = [...(byPosition.get("running_back") ?? []), ...(byPosition.get("wide_receiver") ?? []), ...(byPosition.get("tight_end") ?? [])].sort(
-    (a, b) => b.gw1TotalPoints - a.gw1TotalPoints
-  );
-  const flexPick = pickBest(flexPool);
-  roster.FLEX = flexPick.name;
-  used.add(flexPick.name);
-  counts[flexPick.teamAbbr] = (counts[flexPick.teamAbbr] ?? 0) + 1;
+  for (const qb of qbs) {
+    for (const dst of dsts) {
+      const baseCounts = addCount(addCount({}, qb.teamAbbr), dst.teamAbbr);
+      if (overCap(baseCounts)) continue;
+      const baseCost = qb.price + dst.price;
+      const basePoints = qb.gw1TotalPoints + dst.gw1TotalPoints;
 
-  function slotPool(slot: SlotKey): PoolPlayer[] {
-    return slot === "FLEX" ? flexPool : byPosition.get(SLOT_POSITIONS[slot][0]) ?? [];
-  }
+      for (const rbPair of rbPairs) {
+        let rbCounts = baseCounts;
+        let ok = true;
+        for (const rb of rbPair) {
+          rbCounts = addCount(rbCounts, rb.teamAbbr);
+          if (overCap(rbCounts)) { ok = false; break; }
+        }
+        if (!ok) continue;
+        const rbCost = rbPair[0].price + rbPair[1].price;
+        const rbPoints = rbPair[0].gw1TotalPoints + rbPair[1].gw1TotalPoints;
 
-  let cost = squadCost(roster, byName);
-  let guard = 0;
-  while (cost > BUDGET_CAP + 1e-9) {
-    if (++guard > 200) throw new Error("Could not reach budget even with the pool's cheapest options - this should not happen given the tier guarantee.");
-    let best: { ratio: number; slot: SlotKey; candidate: PoolPlayer } | null = null;
-    for (const slot of SLOT_KEYS) {
-      const current = byName.get(roster[slot])!;
-      for (const cand of slotPool(slot)) {
-        if (cand.name === current.name || used.has(cand.name) || cand.price >= current.price) continue;
-        if (!validAfterSwap(roster, byName, slot, cand.name)) continue;
-        const loss = current.gw1TotalPoints - cand.gw1TotalPoints;
-        const saved = current.price - cand.price;
-        const ratio = loss / saved;
-        if (!best || ratio < best.ratio) best = { ratio, slot, candidate: cand };
+        for (const wrTriple of wrTriples) {
+          let wrCounts = rbCounts;
+          let ok2 = true;
+          for (const wr of wrTriple) {
+            wrCounts = addCount(wrCounts, wr.teamAbbr);
+            if (overCap(wrCounts)) { ok2 = false; break; }
+          }
+          if (!ok2) continue;
+          const wrCost = wrTriple[0].price + wrTriple[1].price + wrTriple[2].price;
+          const wrPoints = wrTriple[0].gw1TotalPoints + wrTriple[1].gw1TotalPoints + wrTriple[2].gw1TotalPoints;
+          const runningCost = baseCost + rbCost + wrCost;
+          if (runningCost > BUDGET_CAP) continue; // even before TE/FLEX, already over - prune
+
+          const usedRbWr = new Set([...rbPair, ...wrTriple].map((p) => p.id));
+
+          for (const te of tes) {
+            const teCounts = addCount(wrCounts, te.teamAbbr);
+            if (overCap(teCounts)) continue;
+            const costSoFar = runningCost + te.price;
+            if (costSoFar > BUDGET_CAP) continue;
+            const pointsSoFar = basePoints + rbPoints + wrPoints + te.gw1TotalPoints;
+
+            const flexPool = [...rbs, ...wrs, ...tes].filter((p) => !usedRbWr.has(p.id) && p.id !== te.id);
+            for (const flex of flexPool) {
+              const flexCounts = addCount(teCounts, flex.teamAbbr);
+              if (overCap(flexCounts)) continue;
+              const totalCost = costSoFar + flex.price;
+              if (totalCost > BUDGET_CAP + 1e-9) continue;
+              const totalPoints = pointsSoFar + flex.gw1TotalPoints;
+              if (!best || totalPoints > best.points) {
+                best = {
+                  points: totalPoints,
+                  roster: {
+                    QB: qb.name, DST: dst.name, RB1: rbPair[0].name, RB2: rbPair[1].name,
+                    WR1: wrTriple[0].name, WR2: wrTriple[1].name, WR3: wrTriple[2].name,
+                    TE: te.name, FLEX: flex.name,
+                  },
+                };
+              }
+            }
+          }
+        }
       }
     }
-    if (!best) throw new Error("No legal downgrade found - the pool cannot reach £140M even using its cheapest tier picks.");
-    const old = roster[best.slot];
-    used.delete(old);
-    used.add(best.candidate.name);
-    roster[best.slot] = best.candidate.name;
-    cost = squadCost(roster, byName);
   }
 
-  return roster;
+  if (!best) throw new Error("No legal squad found under £140M anywhere in this pool - this shouldn't happen given the tier guarantee; please report this pool.");
+  return best.roster;
 }
 
 function poolAlternative(
