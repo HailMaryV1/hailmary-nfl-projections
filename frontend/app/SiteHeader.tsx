@@ -19,6 +19,9 @@ export default function SiteHeader() {
           <Link href="/playbook/auto-draft" className="text-sm text-navy-300 hover:text-sky-300">
             Auto-Draft
           </Link>
+          <Link href="/playbook/custom" className="text-sm text-navy-300 hover:text-sky-300">
+            My Pool
+          </Link>
           <Link href="/admin" className="text-xs text-navy-500 hover:text-sky-300">
             Admin
           </Link>

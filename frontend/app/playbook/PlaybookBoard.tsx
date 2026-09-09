@@ -22,11 +22,16 @@ type WeekRecord = {
 export type PlanData = { total_points: number; extra_transfer_weeks: number[]; weeks: WeekRecord[] };
 
 const SLOT_ORDER = ["QB", "RB1", "RB2", "WR1", "WR2", "WR3", "TE", "FLEX"] as const;
-const SLOT_LABEL: Record<string, string> = { QB: "QB", RB1: "RB", RB2: "RB", WR1: "WR", WR2: "WR", WR3: "WR", TE: "TE", FLEX: "FLEX" };
+// DST isn't in SLOT_ORDER (it's rendered from week.dst in its own board row/
+// card, same as the two fixed-DST playbooks), but a custom pool's DST is a
+// real rotating slot, so its moves can appear in the move log - these two
+// entries just make that render with a real label/colour instead of a bare
+// "DST" fallback.
+const SLOT_LABEL: Record<string, string> = { QB: "QB", RB1: "RB", RB2: "RB", WR1: "WR", WR2: "WR", WR3: "WR", TE: "TE", FLEX: "FLEX", DST: "DST" };
 const SLOT_ACCENT: Record<string, string> = {
   QB: "var(--color-pos-qb)", RB1: "var(--color-pos-rb)", RB2: "var(--color-pos-rb)",
   WR1: "var(--color-pos-wr)", WR2: "var(--color-pos-wr)", WR3: "var(--color-pos-wr)",
-  TE: "var(--color-pos-te)", FLEX: "var(--color-pos-dst)",
+  TE: "var(--color-pos-te)", FLEX: "var(--color-pos-dst)", DST: "var(--color-pos-dst)",
 };
 const BUDGET_CAP = 140.0;
 

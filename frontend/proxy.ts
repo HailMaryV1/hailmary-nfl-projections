@@ -29,8 +29,12 @@ export default async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
-  if (isAdminRoute && !user) {
+  // Custom pools/playbooks are a real person's own saved data (see
+  // supabase/migrations/0013_custom_playbooks.sql) - gated the same way
+  // as /admin, not public like the two fixed playbooks at /playbook and
+  // /playbook/auto-draft.
+  const isProtectedRoute = request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/playbook/builder") || request.nextUrl.pathname.startsWith("/playbook/custom");
+  if (isProtectedRoute && !user) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
@@ -40,5 +44,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/playbook/builder/:path*", "/playbook/custom/:path*"],
 };
