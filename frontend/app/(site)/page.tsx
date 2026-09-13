@@ -65,7 +65,7 @@ function Chip({ label, value }: { label: string; value: string }) {
 function FeaturedPickCard({ player }: { player: { name: string; team: string; position: string; price: number; rating: number | null; ownershipPct: number | null; matchup: string | null; totalPoints: number } }) {
   return (
     <Link
-      href="/"
+      href="/projections"
       className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-orange-500/20 bg-gradient-to-br from-navy-900 via-navy-900 to-orange-950/10 p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-orange-400/45 sm:p-8 lg:col-span-2"
     >
       <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-orange-500/15 blur-[90px] transition-opacity duration-300 group-hover:opacity-140" />
@@ -378,7 +378,7 @@ export default async function HomePage() {
               live odds. Real prices, a real £{BUDGET_CAP}M budget, real matchups.
             </p>
             <div className="flex flex-wrap items-center gap-3">
-              <ToolCTA href="/" label="Explore Projections" />
+              <ToolCTA href="/projections" label="Explore Projections" />
               <SecondaryCTA href="/best-team" label="Build Best Team" />
             </div>
           </div>
@@ -393,7 +393,7 @@ export default async function HomePage() {
 
             {ratingsPlayers[0] && (
               <HeroFloatCard
-                href="/"
+                href="/projections"
                 team={ratingsPlayers[0].team}
                 eyebrow="🔥 Top Projected"
                 title={ratingsPlayers[0].name}
@@ -407,7 +407,7 @@ export default async function HomePage() {
             )}
             {ratingsPlayers[1] && (
               <HeroFloatCard
-                href="/"
+                href="/projections"
                 team={ratingsPlayers[1].team}
                 eyebrow="⭐ Also Rated"
                 title={ratingsPlayers[1].name}
@@ -469,7 +469,7 @@ export default async function HomePage() {
                 )}
                 {differential && (
                   <IntelCard
-                    href="/"
+                    href="/projections"
                     emoji="👀"
                     label="Differential"
                     team={differential.team}
@@ -516,11 +516,11 @@ export default async function HomePage() {
                 This week, or a 2/3/5-week outlook - every real active player priced with a projected points total, real price, real value, sortable any
                 way you like.
               </p>
-              <ToolCTA href="/" label="Explore Projections" />
+              <ToolCTA href="/projections" label="Explore Projections" />
             </div>
             <div className="relative">
               {previewSlice.length > 0 ? (
-                <BrowserFrame url="nfl.hailmaryfantasysports.co.uk" accent="#38bdf8" fade maxHeight="560px">
+                <BrowserFrame url="nfl.hailmaryfantasysports.co.uk/projections" accent="#38bdf8" fade maxHeight="560px">
                   <div className="p-4 sm:p-5">
                     <RatingsTable players={previewSlice} horizon={1} />
                   </div>
@@ -529,7 +529,7 @@ export default async function HomePage() {
                 <EmptyPreview label="Projections land here the moment this week's numbers are frozen." />
               )}
               <div className="-mt-px">
-                <OpenToolBar href="/" label={`See all ${activePlayers ?? ""} players →`} />
+                <OpenToolBar href="/projections" label={`See all ${activePlayers ?? ""} players →`} />
               </div>
             </div>
           </Reveal>
@@ -694,7 +694,7 @@ export default async function HomePage() {
           <h2 className="font-[family-name:var(--font-cond)] text-3xl font-extrabold text-navy-100 uppercase sm:text-4xl">Ready for the next slate?</h2>
           <p className="mt-3 text-base text-navy-300">Let Hail Mary do the numbers.</p>
           <div className="mt-6 flex justify-center">
-            <ToolCTA href="/" label="Explore the Projections" />
+            <ToolCTA href="/projections" label="Explore the Projections" />
           </div>
         </Reveal>
       </section>

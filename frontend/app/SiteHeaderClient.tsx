@@ -15,6 +15,11 @@ const HomeIcon: NavIcon = ({ className }) => (
     <path d="M10 20v-6h4v6" />
   </svg>
 );
+const ProjectionsIcon: NavIcon = ({ className }) => (
+  <svg {...iconProps} className={className}>
+    <path d="M4 6h16M4 12h11M4 18h7" />
+  </svg>
+);
 const FixturesIcon: NavIcon = ({ className }) => (
   <svg {...iconProps} className={className}>
     <rect x="3.5" y="4.5" width="17" height="16" rx="2" />
@@ -62,6 +67,7 @@ type NavItem = { href: string; label: string; icon: NavIcon };
 // squad/pick decision) - same grouping ported from the sibling
 // dreamteam-projections/EFL-Projections sidebars.
 const ANALYSE_LINKS: NavItem[] = [
+  { href: "/projections", label: "Player Projections", icon: ProjectionsIcon },
   { href: "/fixtures", label: "Fixture Difficulty", icon: FixturesIcon },
   { href: "/player-stats", label: "Player Stats", icon: StatsIcon },
   { href: "/compare", label: "Player Face-Off", icon: CompareIcon },
@@ -158,7 +164,7 @@ export default function SiteHeaderClient({ isAdmin }: { isAdmin: boolean }) {
 
   const nav = (onLinkClick?: () => void) => (
     <nav className="flex flex-col gap-1">
-      <NavLink href="/" label="Projections" icon={HomeIcon} active={pathname === "/"} onClick={onLinkClick} />
+      <NavLink href="/" label="Home" icon={HomeIcon} active={pathname === "/"} onClick={onLinkClick} />
       <NavGroupLabel>Analyse</NavGroupLabel>
       {ANALYSE_LINKS.map((link) => (
         <NavLink key={link.href} {...link} active={pathname === link.href} onClick={onLinkClick} />
