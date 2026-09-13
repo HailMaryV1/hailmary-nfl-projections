@@ -13,12 +13,9 @@ export default function SiteHeader() {
           <Link href="/fixtures" className="text-sm text-navy-300 hover:text-sky-300">
             Fixtures
           </Link>
-          <Link href="/playbook" className="text-sm text-navy-300 hover:text-sky-300">
-            My Playbook
-          </Link>
-          <Link href="/playbook/auto-draft" className="text-sm text-navy-300 hover:text-sky-300">
-            Auto-Draft
-          </Link>
+          {/* Real user decision 2026-09-13: My Playbook/Auto-Draft are the
+              site owner's own personal season plans, not a public feature -
+              moved to /admin/playbook and /admin/playbook/auto-draft. */}
           <Link href="/playbook/custom" className="text-sm text-navy-300 hover:text-sky-300">
             My Pool
           </Link>

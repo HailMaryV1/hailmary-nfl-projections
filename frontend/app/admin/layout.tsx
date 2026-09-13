@@ -14,6 +14,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <Link href="/admin/layer-weights" className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-navy-300 hover:bg-navy-900 hover:text-sky-300">
             Layer Weights
           </Link>
+          <div className="my-1 border-t border-navy-800" />
+          <Link href="/admin/playbook" className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-navy-300 hover:bg-navy-900 hover:text-sky-300">
+            My Playbook
+          </Link>
+          <Link href="/admin/playbook/auto-draft" className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-navy-300 hover:bg-navy-900 hover:text-sky-300">
+            Auto-Draft
+          </Link>
           <div className="mt-auto hidden sm:block">
             <SignOutButton />
           </div>
