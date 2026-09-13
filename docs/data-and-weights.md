@@ -552,3 +552,52 @@ They stay in the automated workflow as-is (tolerated via `continue-on-error`
 so a bad run doesn't block `compute_projections.py`); a self-hosted runner
 (a real machine with a non-datacenter IP) remains the real fix if their
 CI failure rate needs addressing later, not yet acted on.
+
+## 2026-09-13 - FanTeam 401 regression fixed; real post-game player stats live
+
+- Found live while investigating whether `fanteam.com`'s own public,
+  signed-out team-dashboard pages (`/fantasy/dashboard/{tournament}/{entry}/{gw}`)
+  could be scraped for real points/stats: they can, and tracing the
+  network calls those pages make surfaced the real cause of
+  `fanteam_raw.json` having gone stale since 2026-09-07 -
+  `scrape_fanteam.py`'s endpoint started returning a real HTTP 401
+  (`"error":"no_client"`) once the season kicked off 2026-09-10, even from
+  a plain residential IP. FanTeam's own frontend always sends a
+  `bearer[white_label]=fanteam` query param on every API call, signed in or
+  not - not a secret, not tied to any user/session, just an app identifier
+  the API now enforces. Adding it to every FanTeam call fixed the
+  regression; confirmed live (`scrape_fanteam.py` back to 603 players/16
+  fixtures/32 teams). This is a separate, real issue from the 2026-09-08
+  GitHub-runner datacenter-IP block documented above - both are real and
+  both still apply.
+- The same endpoint, called with a real numeric `round` instead of
+  `editable`, returns real post-game `totalStats`/`points` per player once
+  that gameweek's games are finished (`status: "finished"`) - the missing
+  piece for real per-gameweek `player_stats` rows (previously empty this
+  season; see the honest "no real stats yet" banner `/player-stats` showed
+  before this). `round=editable` also now returns `statsRound`: the latest
+  real gameweek with any finished games, used to know how many rounds are
+  worth pulling each run.
+- New `scripts/scrape_fanteam_stats.py` + `scripts/import_fanteam_stats.py`,
+  wired into `refresh_nfl.py` right after the existing FanTeam steps (same
+  `--skip fanteam` CI exclusion, since these hit the same FanTeam domain
+  and the same real IP-blocking issue). Player matching reuses
+  `import_fanteam.py`'s `external_id = str(realPlayerId)` convention.
+- `STAT_KEY_MAP` in `import_fanteam_stats.py` only maps FanTeam `totalStats`
+  keys actually observed live against gameweek 1's real finished games
+  (passing/rushing/receiving yards+TDs, receptions, interceptions
+  thrown/made, fumbles lost/recovered, sacks, points allowed). A handful of
+  real, scored stats (two-point conversions, safeties, blocked kicks,
+  defensive/return TDs - see `scoring_rules`) hadn't occurred yet in that
+  sample, so their real FanTeam key spelling is still unconfirmed - left
+  null rather than guessed, and the importer prints any unmapped
+  `totalStats` key it encounters so a real occurrence gets caught and the
+  map extended with a confirmed spelling. `raw_stats` always stores the
+  full real blob regardless, so nothing is lost while a mapping is pending.
+- Verified live end to end: 41 real gameweek-1 rows written (Jaxon
+  Smith-Njigba 8 rec/122 yds/26.2pts, Brock Purdy 205 pass yds/3 pass
+  TDs/21.1pts, Seattle D/ST 10pts-allowed-tier/13pts, etc.), zero unmatched
+  players, zero unmapped stat keys. `/player-stats` picked up the real
+  numbers with no frontend changes needed - it already aggregated
+  `player_stats` generically and was only ever waiting on real rows to
+  exist.
