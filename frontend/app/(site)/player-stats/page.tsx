@@ -1,4 +1,3 @@
-import SiteHeader from "../SiteHeader";
 import PlayerStatsTable, { type PlayerStatRow } from "./PlayerStatsTable";
 import { createPublicClient } from "@/lib/supabaseClient";
 
@@ -134,9 +133,7 @@ export default async function PlayerStatsPage() {
   const anyRealStats = statRows.length > 0;
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 p-4 sm:p-6">
+    <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 p-4 sm:p-6">
         <h1 className="text-2xl font-semibold text-navy-100">Player Stats</h1>
         <p className="mt-1 max-w-2xl text-sm text-navy-300">
           Real season-to-date stats for every active FanTeam NFL Regular Season 2026/27 player - what&apos;s actually
@@ -153,7 +150,6 @@ export default async function PlayerStatsPage() {
         <div className="mt-6">
           <PlayerStatsTable players={players} />
         </div>
-      </main>
-    </>
+    </main>
   );
 }
