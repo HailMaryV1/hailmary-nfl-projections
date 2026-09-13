@@ -1,10 +1,12 @@
+// Real per-team jersey art (provided by the user, sliced from a single
+// 32-team sheet into public/jerseys/{ABBR}.png - see
+// scripts/slice_jerseys.py) - used everywhere a team needs a visual
+// identifier. Falls back to the old generated-color initial chip only if a
+// team's jersey art is somehow missing, so a real gap is visible rather
+// than a broken image.
 import { teamColor } from "@/lib/teamColors";
+import { JERSEY_TEAMS } from "@/lib/jerseyTeams";
 
-// Same generated-color reasoning as lib/teamColors.ts's own comment - a
-// consistent visual identifier, not a real team brand color (none exists
-// in this project's schema). Text is a fixed dark navy rather than a
-// per-team contrast calculation - safe against every generated color at
-// this component's fixed 62%/58% HSL lightness.
 const SIZES = {
   sm: { box: 30, font: 11.5, radius: 8 },
   md: { box: 46, font: 14, radius: 12 },
@@ -13,6 +15,14 @@ const SIZES = {
 
 export default function TeamBadge({ team, size = "sm" }: { team: string; size?: keyof typeof SIZES }) {
   const { box, font, radius } = SIZES[size];
+
+  if (JERSEY_TEAMS.has(team)) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- local public asset, dynamic per-team src, no optimization needed at this size.
+      <img src={`/jerseys/${team}.png`} alt={`${team} jersey`} width={box} height={box} className="shrink-0 object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.45)]" style={{ width: box, height: box }} />
+    );
+  }
+
   const bg = teamColor(team);
   return (
     <div

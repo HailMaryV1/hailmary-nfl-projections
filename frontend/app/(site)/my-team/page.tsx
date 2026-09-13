@@ -5,6 +5,7 @@ import { positionLabel } from "@/lib/positions";
 import TeamBadge from "../../TeamBadge";
 import ConnectTeamForm from "./ConnectTeamForm";
 import DisconnectButton from "./DisconnectButton";
+import RosterPitch from "./RosterPitch";
 
 type RosterPlayer = {
   realPlayerId: number;
@@ -161,7 +162,9 @@ async function TeamView({ entryId, cachedName }: { entryId: number; cachedName: 
       </div>
 
       <p className="mt-4 text-xs font-bold uppercase tracking-wide text-navy-500">Gameweek {gameweek} · Starting lineup</p>
-      <RosterGrid players={fieldPlayers} />
+      <div className="mt-2">
+        <RosterPitch players={fieldPlayers} />
+      </div>
 
       {benchPlayers.length > 0 && (
         <>
