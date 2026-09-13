@@ -54,6 +54,12 @@ const PoolIcon: NavIcon = ({ className }) => (
     <path d="M4.5 20c1-3.5 4-5.5 7.5-5.5s6.5 2 7.5 5.5" />
   </svg>
 );
+const MyTeamIcon: NavIcon = ({ className }) => (
+  <svg {...iconProps} className={className}>
+    <rect x="3.5" y="5" width="17" height="13" rx="1.5" />
+    <path d="M3.5 9.5h17M8 5v13" />
+  </svg>
+);
 const AdminIcon: NavIcon = ({ className }) => (
   <svg {...iconProps} className={className}>
     <path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z" />
@@ -76,6 +82,7 @@ const BUILD_LINKS: NavItem[] = [
   { href: "/best-team", label: "Best Team", icon: BestTeamIcon },
   { href: "/value-finder", label: "Value Finder", icon: ValueIcon },
   { href: "/playbook/custom", label: "My Pool", icon: PoolIcon },
+  { href: "/my-team", label: "My Team", icon: MyTeamIcon },
 ];
 
 function NavGroupLabel({ children }: { children: React.ReactNode }) {

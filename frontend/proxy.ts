@@ -39,7 +39,10 @@ export default async function proxy(request: NextRequest) {
   // signed-in user" only, same as before; applying the admin allowlist
   // there would lock real customers out of their own saved pool/playbook.
   const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
-  const isUserRoute = request.nextUrl.pathname.startsWith("/playbook/builder") || request.nextUrl.pathname.startsWith("/playbook/custom");
+  const isUserRoute =
+    request.nextUrl.pathname.startsWith("/playbook/builder") ||
+    request.nextUrl.pathname.startsWith("/playbook/custom") ||
+    request.nextUrl.pathname.startsWith("/my-team");
   const isAllowed = isAdminRoute ? isAdminEmail(user?.email) : isUserRoute ? Boolean(user) : true;
   if (!isAllowed) {
     const loginUrl = new URL("/login", request.url);
@@ -51,5 +54,5 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/playbook/builder/:path*", "/playbook/custom/:path*"],
+  matcher: ["/admin/:path*", "/playbook/builder/:path*", "/playbook/custom/:path*", "/my-team/:path*"],
 };
