@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
+import { isAdminEmail } from "@/lib/adminAccess";
 
 // Next.js 16 renamed middleware.ts -> proxy.ts (same convention already
 // used in the sibling dreamteam-projections repo). Gates /admin/* behind
@@ -29,12 +30,18 @@ export default async function proxy(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Custom pools/playbooks are a real person's own saved data (see
-  // supabase/migrations/0013_custom_playbooks.sql) - gated the same way
-  // as /admin, not public like the two fixed playbooks at /playbook and
-  // /playbook/auto-draft.
-  const isProtectedRoute = request.nextUrl.pathname.startsWith("/admin") || request.nextUrl.pathname.startsWith("/playbook/builder") || request.nextUrl.pathname.startsWith("/playbook/custom");
-  if (isProtectedRoute && !user) {
+  // Real fix 2026-09-13: "is signed in" isn't the same as "is the admin" -
+  // /admin (which now also covers the relocated My Playbook/Auto-Draft
+  // boards, the site owner's own personal season plans) needs the real
+  // admin allowlist, see lib/adminAccess.ts. Custom pools/playbooks are a
+  // real CUSTOMER's own saved data (see
+  // supabase/migrations/0013_custom_playbooks.sql) - gated on "any real
+  // signed-in user" only, same as before; applying the admin allowlist
+  // there would lock real customers out of their own saved pool/playbook.
+  const isAdminRoute = request.nextUrl.pathname.startsWith("/admin");
+  const isUserRoute = request.nextUrl.pathname.startsWith("/playbook/builder") || request.nextUrl.pathname.startsWith("/playbook/custom");
+  const isAllowed = isAdminRoute ? isAdminEmail(user?.email) : isUserRoute ? Boolean(user) : true;
+  if (!isAllowed) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", request.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);

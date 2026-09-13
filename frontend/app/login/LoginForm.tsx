@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createAuthBrowserClient } from "@/lib/supabaseBrowserClient";
+import { isAdminEmail } from "@/lib/adminAccess";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -18,14 +19,30 @@ export default function LoginForm() {
     setError(null);
 
     const supabase = createAuthBrowserClient();
-    const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
 
-    setLoading(false);
     if (signInError) {
+      setLoading(false);
       setError("Incorrect email or password.");
       return;
     }
-    router.push(searchParams.get("from") || "/admin");
+
+    const from = searchParams.get("from") || "/admin";
+    // Real fix 2026-09-13: a correct password used to be enough to reach
+    // /admin, which only checked "signed in" - but /playbook/builder and
+    // /playbook/custom are real, any-signed-in-customer routes, so a
+    // correct password for one of THOSE must never be rejected just
+    // because the email isn't one of the two admin addresses. Only reject
+    // when the sign-in is actually destined for /admin.
+    if (from.startsWith("/admin") && !isAdminEmail(data.user?.email)) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setError("This account isn't authorized for admin access.");
+      return;
+    }
+
+    setLoading(false);
+    router.push(from);
     router.refresh();
   }
 

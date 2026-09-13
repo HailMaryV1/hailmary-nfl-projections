@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAuthServerClient } from "@/lib/supabaseServerClient";
+import { isAdminEmail } from "@/lib/adminAccess";
 
 export async function saveScoringRules(changes: { id: number; applies_to: string; stat: string; oldPoints: number; newPoints: number }[]) {
   const supabase = await createAuthServerClient();
@@ -9,7 +10,7 @@ export async function saveScoringRules(changes: { id: number; applies_to: string
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not signed in.");
+  if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized.");
 
   const real = changes.filter((c) => c.newPoints !== c.oldPoints);
   for (const change of real) {

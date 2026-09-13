@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAuthServerClient } from "@/lib/supabaseServerClient";
+import { isAdminEmail } from "@/lib/adminAccess";
 
 export async function saveLayerWeights(
   horizon: number,
@@ -13,7 +14,7 @@ export async function saveLayerWeights(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not signed in.");
+  if (!user || !isAdminEmail(user.email)) throw new Error("Not authorized.");
 
   const real = changes.filter((c) => c.newWeight !== c.oldWeight);
   for (const change of real) {

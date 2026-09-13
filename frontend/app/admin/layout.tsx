@@ -1,8 +1,24 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import SiteHeader from "../SiteHeader";
 import SignOutButton from "./SignOutButton";
+import { createAuthServerClient } from "@/lib/supabaseServerClient";
+import { isAdminEmail } from "@/lib/adminAccess";
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  // proxy.ts already redirects a non-admin visitor before this ever
+  // renders - this is defense in depth, not the only gate (every admin
+  // write action below also checks this independently, since a Server
+  // Action is a directly-callable POST endpoint, not protected by page
+  // gating alone).
+  const supabase = await createAuthServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user || !isAdminEmail(user.email)) {
+    redirect("/login");
+  }
+
   return (
     <>
       <SiteHeader />
