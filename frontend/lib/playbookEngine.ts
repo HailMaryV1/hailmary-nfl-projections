@@ -111,7 +111,7 @@ export function buildEstimates(pool: PoolPlayer[], schedule: ScheduleByTeam, lea
   return est;
 }
 
-type Roster = Record<SlotKey, string>; // slot -> player name
+export type Roster = Record<SlotKey, string>; // slot -> player name
 
 function squadCost(roster: Roster, byName: Map<string, PoolPlayer>): number {
   return SLOT_KEYS.reduce((sum, slot) => sum + byName.get(roster[slot])!.price, 0);
