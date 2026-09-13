@@ -53,10 +53,10 @@ function positionColorVar(position: string): string {
   return map[position] ?? "--color-navy-300";
 }
 
-export default function RatingsTable({ players, horizon }: { players: PlayerRow[]; horizon: number }) {
+export default function RatingsTable({ players, horizon, defaultSortMode = "points" }: { players: PlayerRow[]; horizon: number; defaultSortMode?: SortMode }) {
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("ALL");
   const [team, setTeam] = useState<string>("ALL");
-  const [sortMode, setSortMode] = useState<SortMode>("points");
+  const [sortMode, setSortMode] = useState<SortMode>(defaultSortMode);
 
   const teams = useMemo(() => [...new Set(players.map((p) => p.team))].sort(), [players]);
 
