@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import SwapPanel from "./SwapPanel";
+import type { SlotKey } from "@/lib/playbookEngine";
 
 type SlotInfo = { name: string; team: string; price: number; pts: number | null };
 type Move = { slot: string; old: string; new: string; reason: string; pts: number };
@@ -59,7 +61,21 @@ function useTeamColors(plan: PlanData) {
   }, [plan]);
 }
 
-export default function PlaybookBoard({ plan, storageKey, accentClass }: { plan: PlanData; storageKey: string; accentClass: string }) {
+export default function PlaybookBoard({
+  plan,
+  storageKey,
+  accentClass,
+  poolId,
+  currentGameweek,
+  injuryFlags,
+}: {
+  plan: PlanData;
+  storageKey: string;
+  accentClass: string;
+  poolId?: number;
+  currentGameweek?: number;
+  injuryFlags?: Record<string, { status: string }>;
+}) {
   const [selectedGw, setSelectedGw] = useState(plan.weeks[0].gw);
   const teamColor = useTeamColors(plan);
   const week = plan.weeks.find((w) => w.gw === selectedGw)!;
@@ -160,7 +176,15 @@ export default function PlaybookBoard({ plan, storageKey, accentClass }: { plan:
         </table>
       </div>
 
-      <DetailPanel week={week} storageKey={storageKey} accentClass={accentClass} teamColor={teamColor} />
+      <DetailPanel
+        week={week}
+        storageKey={storageKey}
+        accentClass={accentClass}
+        teamColor={teamColor}
+        canSwap={poolId !== undefined && week.gw === currentGameweek}
+        poolId={poolId}
+        injuryFlags={injuryFlags}
+      />
     </div>
   );
 }
@@ -184,8 +208,17 @@ function LegendDot({ color, label, outline }: { color: string; label: string; ou
 }
 
 function DetailPanel({
-  week, storageKey, accentClass, teamColor,
-}: { week: WeekRecord; storageKey: string; accentClass: string; teamColor: Record<string, string> }) {
+  week, storageKey, accentClass, teamColor, canSwap, poolId, injuryFlags,
+}: {
+  week: WeekRecord;
+  storageKey: string;
+  accentClass: string;
+  teamColor: Record<string, string>;
+  canSwap: boolean;
+  poolId?: number;
+  injuryFlags?: Record<string, { status: string }>;
+}) {
+  const [openSlot, setOpenSlot] = useState<SlotKey | null>(null);
   const [done, setDone] = useState(() => {
     try {
       return localStorage.getItem(`${storageKey}_done_${week.gw}`) === "1";
@@ -278,15 +311,26 @@ function DetailPanel({
         <p className="py-1.5 text-[13px] italic text-navy-500">Hold the squad as-is this week — no swap cleared the real point-gain bar.</p>
       )}
 
-      <SectionLabel>Full roster this week</SectionLabel>
+      <SectionLabel>{canSwap ? "Full roster this week — real injury/lineup concerns flagged" : "Full roster this week"}</SectionLabel>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-        {SLOT_ORDER.map((slot) => {
-          const info = week.roster[slot];
+        {[...SLOT_ORDER, "DST" as const].map((slot) => {
+          const info = slot === "DST" ? week.dst : week.roster[slot];
           const changed = week.moves.some((m) => m.slot === slot);
+          const flag = injuryFlags?.[info.name];
+          const overridden = week.moves.some((m) => m.slot === slot && m.reason.startsWith("Manual swap"));
+          const otherSlots = [...SLOT_ORDER, "DST" as const]
+            .filter((s) => s !== slot)
+            .map((s) => (s === "DST" ? week.dst : week.roster[s]))
+            .map((s) => ({ name: s.name, team: s.team }));
           return (
             <div key={slot} className={`rounded-lg border bg-navy-950/50 p-2.5 ${changed ? `border-current ${accentClass}` : "border-navy-800"}`}>
-              <div className="font-[family-name:var(--font-cond)] text-[11px] font-bold uppercase tracking-wide" style={{ color: SLOT_ACCENT[slot] }}>
-                {SLOT_LABEL[slot]}
+              <div className="flex items-center justify-between gap-1">
+                <div className="font-[family-name:var(--font-cond)] text-[11px] font-bold uppercase tracking-wide" style={{ color: SLOT_ACCENT[slot] }}>
+                  {SLOT_LABEL[slot]}
+                </div>
+                {flag && (
+                  <span className="rounded-full bg-rose-500/15 px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wide text-rose-300">{flag.status}</span>
+                )}
               </div>
               <div className="mt-0.5 truncate text-sm font-semibold text-navy-100">{info.name}</div>
               <div className="text-[11.5px] text-navy-400">{info.team}</div>
@@ -294,18 +338,35 @@ function DetailPanel({
                 <span>£{info.price.toFixed(1)}m</span>
                 <b className="text-navy-100">{info.pts === 0 ? "BYE" : `${fmt1(info.pts)}p`}</b>
               </div>
+              {canSwap && poolId !== undefined && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setOpenSlot(openSlot === slot ? null : slot)}
+                    className={`mt-2 w-full rounded-full px-2 py-1 text-[10.5px] font-bold uppercase tracking-wide ${
+                      overridden ? "bg-navy-800 text-navy-300" : "bg-sky-500/15 text-sky-300 hover:bg-sky-500/25"
+                    }`}
+                  >
+                    {overridden ? "Manually swapped" : "Swap"}
+                  </button>
+                  {openSlot === slot && (
+                    <SwapPanel
+                      poolId={poolId}
+                      gameweek={week.gw}
+                      slot={slot}
+                      outgoingName={info.name}
+                      outgoingPrice={info.price}
+                      weekCost={week.cost}
+                      otherSlots={otherSlots}
+                      isOverridden={overridden}
+                      onClose={() => setOpenSlot(null)}
+                    />
+                  )}
+                </>
+              )}
             </div>
           );
         })}
-        <div className="rounded-lg border border-navy-800 bg-navy-950/50 p-2.5">
-          <div className="font-[family-name:var(--font-cond)] text-[11px] font-bold uppercase tracking-wide text-navy-500">DST</div>
-          <div className="mt-0.5 truncate text-sm font-semibold text-navy-100">{week.dst.name}</div>
-          <div className="text-[11.5px] text-navy-400">{week.dst.team}</div>
-          <div className="mt-1.5 flex justify-between font-mono text-xs text-navy-400">
-            <span>£{week.dst.price.toFixed(1)}m</span>
-            <b className="text-navy-100">{week.dst.pts === 0 ? "BYE" : `${fmt1(week.dst.pts)}p`}</b>
-          </div>
-        </div>
       </div>
     </div>
   );

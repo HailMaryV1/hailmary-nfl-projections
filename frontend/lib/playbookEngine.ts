@@ -61,7 +61,7 @@ export type ScheduleByTeam = Map<number, Map<number, ScheduleRow>>;
 const SLOT_KEYS = ["QB", "RB1", "RB2", "WR1", "WR2", "WR3", "TE", "FLEX", "DST"] as const;
 export type SlotKey = (typeof SLOT_KEYS)[number];
 
-const SLOT_POSITIONS: Record<SlotKey, Position[]> = {
+export const SLOT_POSITIONS: Record<SlotKey, Position[]> = {
   QB: ["quarterback"],
   RB1: ["running_back"],
   RB2: ["running_back"],
@@ -156,10 +156,10 @@ function combinations<T>(items: T[], k: number): T[][] {
   return results;
 }
 
-function addCount(counts: Record<string, number>, teamAbbr: string): Record<string, number> {
+export function addCount(counts: Record<string, number>, teamAbbr: string): Record<string, number> {
   return { ...counts, [teamAbbr]: (counts[teamAbbr] ?? 0) + 1 };
 }
-function overCap(counts: Record<string, number>): boolean {
+export function overCap(counts: Record<string, number>): boolean {
   return Object.values(counts).some((c) => c > MAX_PER_TEAM);
 }
 

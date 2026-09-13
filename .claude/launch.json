@@ -4,8 +4,9 @@
     {
       "name": "nfl-frontend",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "C:\\Users\\info\\OneDrive\\Documents\\OneDrive\\Desktop\\hailmary-nfl-projections\\frontend", "run", "dev", "--", "-p", "3020"],
-      "port": 3020
+      "runtimeArgs": ["--prefix", "C:\\Users\\info\\OneDrive\\Documents\\OneDrive\\Desktop\\hailmary-nfl-projections\\frontend", "run", "dev"],
+      "port": 3020,
+      "autoPort": true
     }
   ]
 }
