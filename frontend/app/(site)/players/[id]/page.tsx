@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import SiteHeader from "../../SiteHeader";
 import { createPublicClient } from "@/lib/supabaseClient";
 import { positionLabel } from "@/lib/positions";
 import { DIFFICULTY_COLORS, computeDifficultyThresholds, difficultyTier } from "@/lib/fixtureDifficulty";
@@ -59,42 +58,41 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
     .maybeSingle();
 
   let opponentLabel: string | null = null;
+  let upcomingFixtures: { gameweek: number; opponentAbbr: string | null; isHome: boolean | null; isBye: boolean; tier: ReturnType<typeof difficultyTier> }[] = [];
+  // Real perf fix (ported from the sibling projects): the fixture lookup
+  // and the upcoming-fixtures schedule-difficulty queries only depend on
+  // `projection` (already resolved above), never on each other - they
+  // were being awaited one after another anyway.
   if (projection) {
-    const { data: fixture } = await supabase
-      .from("fixtures")
-      .select("home_team_id, away_team_id, kickoff_at, home:teams!home_team_id(abbr), away:teams!away_team_id(abbr)")
-      .eq("gameweek", projection.gameweek)
-      .or(`home_team_id.eq.${player.team_id},away_team_id.eq.${player.team_id}`)
-      .maybeSingle();
+    const [{ data: fixture }, { data: allWinTotals }, { data: teamSchedule }] = await Promise.all([
+      supabase
+        .from("fixtures")
+        .select("home_team_id, away_team_id, kickoff_at, home:teams!home_team_id(abbr), away:teams!away_team_id(abbr)")
+        .eq("gameweek", projection.gameweek)
+        .or(`home_team_id.eq.${player.team_id},away_team_id.eq.${player.team_id}`)
+        .maybeSingle(),
+      supabase.from("team_schedule_difficulty").select("opponent_win_total").not("opponent_win_total", "is", null).eq("is_bye", false),
+      // Real upcoming-fixture difficulty ticker - independent of the
+      // selected horizon above (always shows the real next N weeks from
+      // the player's own team, so it's a stable "how's their run looking"
+      // view even while switching between horizon tabs).
+      supabase
+        .from("team_schedule_difficulty")
+        .select("gameweek, is_home, is_bye, opponent_win_total, opponent:teams!opponent_team_id(abbr)")
+        .eq("team_id", player.team_id)
+        .gte("gameweek", projection.gameweek)
+        .lt("gameweek", projection.gameweek + UPCOMING_FIXTURES_COUNT)
+        .order("gameweek"),
+    ]);
+
     type FixtureJoin = { home_team_id: number; home: { abbr: string } | null; away: { abbr: string } | null } | null;
     const f = fixture as unknown as FixtureJoin;
     if (f && f.home && f.away) {
       const isHome = f.home_team_id === player.team_id;
       opponentLabel = `${isHome ? "vs" : "@"} ${isHome ? f.away.abbr : f.home.abbr}`;
     }
-  }
 
-  // Real upcoming-fixture difficulty ticker - independent of the selected
-  // horizon above (always shows the real next N weeks from the player's
-  // own team, so it's a stable "how's their run looking" view even while
-  // switching between horizon tabs).
-  let upcomingFixtures: { gameweek: number; opponentAbbr: string | null; isHome: boolean | null; isBye: boolean; tier: ReturnType<typeof difficultyTier> }[] = [];
-  if (projection) {
-    const { data: allWinTotals } = await supabase
-      .from("team_schedule_difficulty")
-      .select("opponent_win_total")
-      .not("opponent_win_total", "is", null)
-      .eq("is_bye", false);
     const thresholds = computeDifficultyThresholds((allWinTotals ?? []).map((r) => Number(r.opponent_win_total)));
-
-    const { data: teamSchedule } = await supabase
-      .from("team_schedule_difficulty")
-      .select("gameweek, is_home, is_bye, opponent_win_total, opponent:teams!opponent_team_id(abbr)")
-      .eq("team_id", player.team_id)
-      .gte("gameweek", projection.gameweek)
-      .lt("gameweek", projection.gameweek + UPCOMING_FIXTURES_COUNT)
-      .order("gameweek");
-
     type ScheduleJoin = { gameweek: number; is_home: boolean | null; is_bye: boolean; opponent_win_total: number | null; opponent: { abbr: string } | null };
     upcomingFixtures = ((teamSchedule ?? []) as unknown as ScheduleJoin[]).map((row) => ({
       gameweek: row.gameweek,
@@ -116,9 +114,7 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
   const gameweekLabel = projection ? (horizon === 1 ? `GW${projection.gameweek}` : `GW${projection.gameweek}-${projection.gameweek + horizon - 1}`) : null;
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto w-full min-w-0 max-w-3xl flex-1 p-4 sm:p-6">
+    <main className="mx-auto w-full min-w-0 max-w-3xl flex-1 p-4 sm:p-6">
         <Link href={backHref} className="text-sm text-navy-400 hover:text-sky-300">
           ← Back
         </Link>
@@ -235,7 +231,6 @@ export default async function PlayerPage({ params, searchParams }: { params: Pro
             </section>
           </>
         )}
-      </main>
-    </>
+    </main>
   );
 }

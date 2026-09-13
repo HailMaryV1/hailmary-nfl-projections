@@ -1,6 +1,5 @@
 import Link from "next/link";
-import SiteHeader from "./SiteHeader";
-import RatingsTable, { type PlayerRow } from "./RatingsTable";
+import RatingsTable, { type PlayerRow } from "../RatingsTable";
 import { createPublicClient } from "@/lib/supabaseClient";
 import { computeDifficultyThresholds, difficultyTier } from "@/lib/fixtureDifficulty";
 
@@ -49,25 +48,37 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ h
     };
   };
 
-  const { data: rows, error } = algorithmVersionId && gameweek
-    ? await supabase
-        .from("projections")
-        .select(
-          "total_points, data_confidence, players!inner(id, full_name, position, price, team_id, teams!team_id(name, abbr))"
-        )
-        .eq("horizon", horizon)
-        .eq("gameweek", gameweek)
-        .eq("algorithm_version_id", algorithmVersionId)
-        .order("total_points", { ascending: false })
-    : { data: [], error: null };
+  // Real perf fix (ported from the sibling projects): none of these four
+  // queries reads another's result - all only depend on
+  // horizon/gameweek/algorithmVersionId, already resolved above - but
+  // they were being awaited one after another anyway.
+  const [{ data: rows, error }, { data: fixtureRows }, { data: allWinTotals }, { data: currentWeekDifficulty }] = await Promise.all([
+    algorithmVersionId && gameweek
+      ? supabase
+          .from("projections")
+          .select(
+            "total_points, data_confidence, players!inner(id, full_name, position, price, team_id, teams!team_id(name, abbr))"
+          )
+          .eq("horizon", horizon)
+          .eq("gameweek", gameweek)
+          .eq("algorithm_version_id", algorithmVersionId)
+          .order("total_points", { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
+    gameweek
+      ? supabase
+          .from("fixtures")
+          .select("home_team_id, away_team_id, kickoff_at, home:teams!home_team_id(abbr), away:teams!away_team_id(abbr)")
+          .eq("gameweek", gameweek)
+      : Promise.resolve({ data: [] }),
+    // Real difficulty tier for the "Opp" column - same thresholds and
+    // opponent-strength data as the /fixtures tool, so a colour on this
+    // page means the same thing there.
+    supabase.from("team_schedule_difficulty").select("opponent_win_total").not("opponent_win_total", "is", null).eq("is_bye", false),
+    gameweek
+      ? supabase.from("team_schedule_difficulty").select("team_id, is_bye, opponent_win_total").eq("gameweek", gameweek)
+      : Promise.resolve({ data: [] }),
+  ]);
   if (error) throw new Error(`Failed to load projections: ${error.message}`);
-
-  const { data: fixtureRows } = gameweek
-    ? await supabase
-        .from("fixtures")
-        .select("home_team_id, away_team_id, kickoff_at, home:teams!home_team_id(abbr), away:teams!away_team_id(abbr)")
-        .eq("gameweek", gameweek)
-    : { data: [] };
 
   type FixtureJoin = { home_team_id: number; away_team_id: number; kickoff_at: string; home: { abbr: string } | null; away: { abbr: string } | null };
   const opponentByTeamId = new Map<number, { opponentAbbr: string; isHome: boolean; kickoffAt: string }>();
@@ -78,22 +89,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ h
     }
   }
 
-  // Real difficulty tier for the "Opp" column - same thresholds and
-  // opponent-strength data as the /fixtures tool, so a colour on this page
-  // means the same thing there.
-  const { data: allWinTotals } = await supabase
-    .from("team_schedule_difficulty")
-    .select("opponent_win_total")
-    .not("opponent_win_total", "is", null)
-    .eq("is_bye", false);
   const thresholds = computeDifficultyThresholds((allWinTotals ?? []).map((r) => Number(r.opponent_win_total)));
-
-  const { data: currentWeekDifficulty } = gameweek
-    ? await supabase
-        .from("team_schedule_difficulty")
-        .select("team_id, is_bye, opponent_win_total")
-        .eq("gameweek", gameweek)
-    : { data: [] };
   const difficultyByTeamId = new Map<number, ReturnType<typeof difficultyTier>>();
   for (const row of currentWeekDifficulty ?? []) {
     difficultyByTeamId.set(row.team_id, difficultyTier(row.opponent_win_total === null ? null : Number(row.opponent_win_total), row.is_bye, thresholds));
@@ -115,9 +111,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ h
   });
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 p-4 sm:p-6">
+    <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 p-4 sm:p-6">
         <h1 className="text-2xl font-semibold text-navy-100">Projections</h1>
         <p className="mt-1 max-w-2xl text-sm text-navy-300">
           Real Projected Points for FanTeam&apos;s NFL Regular Season 2026/27{gameweek ? `, from Gameweek ${gameweek}` : ""}.
@@ -145,7 +139,6 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ h
             <RatingsTable players={players} horizon={horizon} />
           </div>
         )}
-      </main>
-    </>
+    </main>
   );
 }

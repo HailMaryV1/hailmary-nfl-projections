@@ -1,6 +1,5 @@
 import Link from "next/link";
-import SiteHeader from "../SiteHeader";
-import RatingsTable, { type PlayerRow } from "../RatingsTable";
+import RatingsTable, { type PlayerRow } from "../../RatingsTable";
 import { createPublicClient } from "@/lib/supabaseClient";
 import { computeDifficultyThresholds, difficultyTier } from "@/lib/fixtureDifficulty";
 
@@ -116,9 +115,7 @@ export default async function ValueFinderPage({ searchParams }: { searchParams: 
     });
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 p-4 sm:p-6">
+    <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 p-4 sm:p-6">
         <p className="text-xs font-bold uppercase tracking-wide text-emerald-400">Points Per Real £m</p>
         <h1 className="text-2xl font-semibold text-navy-100">Value Finder</h1>
         <p className="mt-1 max-w-2xl text-sm text-navy-300">
@@ -147,7 +144,6 @@ export default async function ValueFinderPage({ searchParams }: { searchParams: 
             <RatingsTable players={players} horizon={horizon} defaultSortMode="value" />
           </div>
         )}
-      </main>
-    </>
+    </main>
   );
 }

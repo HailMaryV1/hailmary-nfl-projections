@@ -1,5 +1,5 @@
 import Link from "next/link";
-import PlaybookBoard, { type PlanData } from "../../../playbook/PlaybookBoard";
+import PlaybookBoard, { type PlanData } from "../../../(site)/playbook/PlaybookBoard";
 import plan from "../data/auto-draft.json";
 
 // See app/admin/playbook/page.tsx's own comment - moved under /admin

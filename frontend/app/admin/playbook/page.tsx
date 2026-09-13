@@ -1,5 +1,5 @@
 import Link from "next/link";
-import PlaybookBoard, { type PlanData } from "../../playbook/PlaybookBoard";
+import PlaybookBoard, { type PlanData } from "../../(site)/playbook/PlaybookBoard";
 import plan from "./data/hand-picked.json";
 
 // Real user decision 2026-09-13: this is the site owner's own personal

@@ -1,4 +1,3 @@
-import SiteHeader from "../SiteHeader";
 import FixtureDifficultyGrid, { type TeamScheduleRow } from "./FixtureDifficultyGrid";
 import { createPublicClient } from "@/lib/supabaseClient";
 import { computeDifficultyThresholds } from "@/lib/fixtureDifficulty";
@@ -25,13 +24,17 @@ export default async function FixturesPage() {
     : { data: null };
   const currentGameweek = gwRow?.gameweek ?? 1;
 
-  const { data: teams, error: teamsError } = await supabase.from("teams").select("id, name, abbr").order("name");
+  // Real perf fix (ported from the sibling projects): teams and
+  // scheduleRows don't depend on each other or on the gameweek lookup
+  // above - they were being awaited one after another anyway.
+  const [{ data: teams, error: teamsError }, { data: scheduleRows, error: scheduleError }] = await Promise.all([
+    supabase.from("teams").select("id, name, abbr").order("name"),
+    supabase
+      .from("team_schedule_difficulty")
+      .select("team_id, gameweek, is_home, is_bye, opponent_win_total, opponent:teams!opponent_team_id(abbr)")
+      .order("gameweek"),
+  ]);
   if (teamsError) throw new Error(`Failed to load teams: ${teamsError.message}`);
-
-  const { data: scheduleRows, error: scheduleError } = await supabase
-    .from("team_schedule_difficulty")
-    .select("team_id, gameweek, is_home, is_bye, opponent_win_total, opponent:teams!opponent_team_id(abbr)")
-    .order("gameweek");
   if (scheduleError) throw new Error(`Failed to load schedule difficulty: ${scheduleError.message}`);
 
   type RawRow = {
@@ -57,9 +60,7 @@ export default async function FixturesPage() {
   );
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 p-4 sm:p-6">
+    <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 p-4 sm:p-6">
         <h1 className="text-2xl font-semibold text-navy-100">Fixture Difficulty</h1>
         <p className="mt-1 max-w-2xl text-sm text-navy-300">
           Real, market-derived opponent strength (Sharp Football Analysis&apos;s Vegas-win-total model) for every real
@@ -74,7 +75,6 @@ export default async function FixturesPage() {
             currentGameweek={currentGameweek}
           />
         </div>
-      </main>
-    </>
+    </main>
   );
 }

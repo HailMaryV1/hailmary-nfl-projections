@@ -1,4 +1,3 @@
-import SiteHeader from "../../SiteHeader";
 import { createPublicClient } from "@/lib/supabaseClient";
 import { createAuthServerClient } from "@/lib/supabaseServerClient";
 import { POOL_SPEC, tierForPrice } from "@/lib/poolSpec";
@@ -53,9 +52,7 @@ export default async function PoolBuilderPage() {
   }
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 p-4 sm:p-6">
+    <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 p-4 sm:p-6">
         <p className="text-xs font-bold uppercase tracking-wide text-emerald-400">Build Your Own Playbook</p>
         <h1 className="font-[family-name:var(--font-cond)] text-4xl font-extrabold text-navy-100">Pool Builder</h1>
         <p className="mt-2 max-w-2xl text-sm text-navy-300">
@@ -65,8 +62,7 @@ export default async function PoolBuilderPage() {
         <div className="mt-6">
           <PoolPicker options={options} spec={POOL_SPEC} existingSelection={existingSelection} signedIn={!!user} />
         </div>
-      </main>
-    </>
+    </main>
   );
 }
 

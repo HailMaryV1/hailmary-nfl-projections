@@ -10,3 +10,4 @@ node_modules/
 .vercel/
 *.tsbuildinfo
 .DS_Store
+.claude/worktrees/

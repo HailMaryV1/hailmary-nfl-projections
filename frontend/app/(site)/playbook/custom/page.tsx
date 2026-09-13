@@ -1,5 +1,4 @@
 import Link from "next/link";
-import SiteHeader from "../../SiteHeader";
 import { createAuthServerClient } from "@/lib/supabaseServerClient";
 import PlaybookBoard, { type PlanData } from "../PlaybookBoard";
 
@@ -12,12 +11,9 @@ export default async function CustomPlaybookPage() {
     // The proxy already gates this route, but keep this readable on its
     // own in case that ever changes.
     return (
-      <>
-        <SiteHeader />
-        <main className="mx-auto w-full max-w-3xl flex-1 p-6">
-          <p className="text-sm text-navy-300">Sign in to see your playbook.</p>
-        </main>
-      </>
+      <main className="mx-auto w-full max-w-3xl flex-1 p-6">
+        <p className="text-sm text-navy-300">Sign in to see your playbook.</p>
+      </main>
     );
   }
 
@@ -28,9 +24,7 @@ export default async function CustomPlaybookPage() {
     : { data: null };
 
   return (
-    <>
-      <SiteHeader />
-      <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 p-4 sm:p-6">
+    <main className="mx-auto w-full min-w-0 max-w-6xl flex-1 p-4 sm:p-6">
         <div className="flex flex-wrap items-center gap-3">
           <Link href="/playbook/builder" className="rounded-full bg-navy-900 px-3.5 py-1.5 font-[family-name:var(--font-cond)] text-sm font-bold uppercase tracking-wide text-navy-400 hover:bg-navy-800">
             Edit pool
@@ -58,7 +52,6 @@ export default async function CustomPlaybookPage() {
             </div>
           </>
         )}
-      </main>
-    </>
+    </main>
   );
 }
