@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <>
+    <div className="flex flex-1 flex-col sm:flex-row">
       <SiteHeader />
       <div className="mx-auto flex w-full min-w-0 max-w-5xl flex-1 flex-col gap-6 p-4 sm:flex-row sm:p-6">
         <nav className="flex shrink-0 flex-row gap-1 overflow-x-auto sm:w-44 sm:flex-col">
@@ -46,6 +46,6 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <SignOutButton />
         </div>
       </div>
-    </>
+    </div>
   );
 }

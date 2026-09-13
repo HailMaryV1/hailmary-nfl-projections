@@ -1,29 +1,17 @@
-import Link from "next/link";
+import { createAuthServerClient } from "@/lib/supabaseServerClient";
+import { isAdminEmail } from "@/lib/adminAccess";
+import SiteHeaderClient from "./SiteHeaderClient";
 
-export default function SiteHeader() {
-  return (
-    <header className="sticky top-0 z-30 border-b border-navy-800 bg-navy-950/90 backdrop-blur-sm">
-      <div className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
-        <Link href="/" className="flex min-w-0 shrink items-center gap-2.5">
-          <span className="shrink-0 text-sm font-bold tracking-wide text-navy-100">HAIL MARY</span>
-          <span className="hidden text-navy-600 sm:inline">/</span>
-          <span className="truncate text-sm font-medium text-navy-300">NFL Projections</span>
-        </Link>
-        <div className="flex shrink-0 items-center gap-4">
-          <Link href="/fixtures" className="text-sm text-navy-300 hover:text-sky-300">
-            Fixtures
-          </Link>
-          {/* Real user decision 2026-09-13: My Playbook/Auto-Draft are the
-              site owner's own personal season plans, not a public feature -
-              moved to /admin/playbook and /admin/playbook/auto-draft. */}
-          <Link href="/playbook/custom" className="text-sm text-navy-300 hover:text-sky-300">
-            My Pool
-          </Link>
-          <Link href="/admin" className="text-xs text-navy-500 hover:text-sky-300">
-            Admin
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
+// Thin async Server Component wrapper - checks the real Supabase Auth
+// session and passes isAdmin down, same split the sibling
+// dreamteam-projections/EFL-Projections sites use, so every public page
+// that renders <SiteHeader /> needs no changes if the auth-check logic
+// ever changes.
+export default async function SiteHeader() {
+  const supabase = await createAuthServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return <SiteHeaderClient isAdmin={isAdminEmail(user?.email)} />;
 }

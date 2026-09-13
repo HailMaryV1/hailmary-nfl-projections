@@ -8,9 +8,9 @@ import SiteHeader from "../SiteHeader";
 // between pages.
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <div className="flex flex-1 flex-col sm:flex-row">
       <SiteHeader />
       {children}
-    </>
+    </div>
   );
 }
