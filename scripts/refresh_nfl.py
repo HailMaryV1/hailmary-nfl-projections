@@ -27,14 +27,13 @@ This is data ingestion only - the projection engine (Phase 3) that turns
 these real rows into a rating is a separate, later step, not run here.
 
 FanTeam (steps 2-5) is excluded from the automated GitHub Actions schedule
-via --skip fanteam: their player prices have never moved once across this
-whole project's history, and their own API returns a real, persistent 401
-to GitHub's shared runner IPs regardless (see docs/data-and-weights.md).
-Run it manually instead - `python scripts/scrape_fanteam.py && python
-scripts/import_fanteam.py && python scripts/scrape_fanteam_stats.py &&
-python scripts/import_fanteam_stats.py` - whenever a new gameweek needs its
-fixtures pulled in, or once real games are played and gameweek points need
-capturing.
+via --skip fanteam: their own API returns a real, persistent 401 to
+GitHub's shared runner IPs (see docs/data-and-weights.md). Not run
+manually any more either, now that FanTeam is also the only real source
+for post-game stats/points (which go stale within hours, unlike their
+static prices) - see scripts/refresh_fanteam.py, scheduled on a real
+machine with a normal IP instead (docs/data-and-weights.md's 2026-09-14
+entry has the exact Task Scheduler setup).
 
 RUN:
     python scripts/refresh_nfl.py             # everything, incl. FanTeam

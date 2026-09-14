@@ -639,3 +639,42 @@ CI failure rate needs addressing later, not yet acted on.
   median 5.53, RMSE 7.29, bias +0.07), error-distance buckets, and the
   per-position breakdown all render from these real rows with no
   fabricated placeholder numbers anywhere.
+- Real gap found immediately after shipping this: more of gameweek 1
+  finishing surfaced two more real, unambiguous FanTeam stat keys
+  (`blockedKick`, `defensiveTd`) - now mapped in
+  `scripts/import_fanteam_stats.py`. Also found a real ambiguity worth
+  recording: a QB's row showed both `conversion` and `conversionPass` set
+  together for what looks like a single real 2-point conversion pass -
+  mapping either into `two_point_conversions` risks double- or
+  under-counting, so both (plus `conversionReturn`) stay deliberately
+  unmapped until the real attribution is confirmed against FanTeam's own
+  scoring breakdown for an affected player. Also fixed the value-builder
+  to sum contributions per column instead of a dict-comprehension
+  overwrite, since two FanTeam keys could in principle map to one column.
+
+## 2026-09-14 - FanTeam refresh moved off manual, onto this machine's own scheduler
+
+- The 2026-09-08 decision to exclude FanTeam from automated CI (real,
+  persistent 401 from GitHub's shared datacenter-IP runners) made sense
+  when FanTeam only supplied static player prices. It stopped making
+  sense once FanTeam also became the only real source for post-game
+  stats/points (2026-09-13) - those go stale within hours, not something
+  "run manually when someone remembers" can keep up with.
+- New `scripts/refresh_fanteam.py` - single entrypoint chaining
+  `scrape_fanteam.py` → `import_fanteam.py` → `scrape_fanteam_stats.py` →
+  `import_fanteam_stats.py` → `capture_actuals.py`, same
+  one-step-failure-doesn't-block-the-rest resilience as `refresh_nfl.py`.
+  Deliberately does NOT run `freeze_predictions.py` - that only depends on
+  `projections`, already computed independently every 6 hours in the
+  automated CI workflow, so it has nothing to gain from running here too.
+- Registered as a real Windows Task Scheduler job on this machine
+  (`HailMary NFL FanTeam Refresh`, `scripts/run_refresh_fanteam.ps1` as
+  the wrapper Task Scheduler actually calls) - repeats every 6 hours,
+  `LogonType: Interactive` (runs only while this Windows account is
+  logged in; deliberately NOT "run whether logged on or not", which would
+  require storing this machine's real Windows password - never done).
+  Logs every run to `logs/fanteam_refresh.log` (gitignored) with a
+  timestamp and exit code, so a silent background failure still leaves a
+  real record. Verified live: registered, manually triggered once via
+  `Start-ScheduledTask` (not just running the underlying script by hand),
+  confirmed `LastTaskResult: 0` and a real log entry from that exact run.
