@@ -97,6 +97,49 @@ def resolve_player_id(cur, name, team_ids):
     return None
 
 
+def full_name_key(full_name: str) -> str:
+    """Whole-name (first+last, generational suffix stripped) normalized
+    key - unlike surname_key, requires the FULL name to align, not just
+    the surname. Used where team-scoping alone is too weak to trust a
+    bare surname match - see resolve_player_id_strict."""
+    return compact(_strip_generational_suffix(full_name))
+
+
+def resolve_player_id_strict(cur, name, team_ids):
+    """Exact full_name match, then a normalized-whole-name match (handles
+    real punctuation/accent/generational-suffix differences) - both
+    scoped to team_ids. Deliberately NO bare-surname fallback.
+
+    Real, confirmed-live bug (2026-09-14) found while backfilling
+    historical NFL seasons via API-Sports: resolve_player_id's own
+    surname+team fallback is safe when matching against a real CURRENT
+    roster (RotoWire's own use case - this project's players table IS
+    that season's real roster), but produces real false positives when
+    matching against an OLD historical season's real roster, which
+    includes players no longer in our current ~603-player reference set.
+    Confirmed example: "DeSean Jackson" (2022 Baltimore Ravens, no longer
+    tracked) wrongly resolved to the CURRENT "Lamar Jackson" (also a real
+    Raven) - different real people, same surname, same team, only one of
+    them still in our reference table. Returns None rather than guess
+    whenever more than one real player matches - a real miss is always
+    preferred over a real misattribution here."""
+    team_ids = list(team_ids)
+    cur.execute("select id from players where full_name = %s and team_id = any(%s)", (name, team_ids))
+    rows = cur.fetchall()
+    if len(rows) == 1:
+        return rows[0][0]
+    if rows:
+        return None
+    key = full_name_key(name)
+    if not key:
+        return None
+    cur.execute("select id, full_name from players where team_id = any(%s)", (team_ids,))
+    matches = [pid for pid, full_name in cur.fetchall() if full_name_key(full_name) == key]
+    if len(matches) == 1:
+        return matches[0]
+    return None
+
+
 def surname_variants(full_name: str) -> set:
     parts = _raw_surname(full_name).split("-")
     return {compact("-".join(parts[i:])) for i in range(len(parts))}

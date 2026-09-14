@@ -24,10 +24,14 @@ A player can appear in more than one group (a QB who also rushes; a WR
 who also returns punts) - one flat row per (game, player) accumulates
 every group they appeared in.
 
-Player matching reuses name_matching.resolve_player_id, scoped to the one
-real team the player's group belongs to (tighter than
-import_rotowire_lineups.py's two-team scope, since API-Sports already
-tells us which specific team each player is grouped under).
+Player matching uses name_matching.resolve_player_id_strict (exact name,
+then a normalized-whole-name match - no bare-surname fallback), scoped to
+the one real team the player's group belongs to. Deliberately the
+stricter matcher, not resolve_player_id: a real false-positive class
+found live during the historical backfill (see that function's own
+docstring) means a real miss is always preferable to a real
+misattribution here, even though this GW1-only import is lower-risk
+(same-season roster, not a multi-year historical one).
 
 RUN:
     python scripts/import_api_sports_gw1.py
@@ -39,7 +43,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from env_utils import ROOT, db_connect  # noqa: E402
-from name_matching import resolve_player_id  # noqa: E402
+from name_matching import resolve_player_id_strict  # noqa: E402
 
 
 def parse_comp_att(value):
@@ -149,7 +153,7 @@ def import_game(cur, entry, team_id_by_name):
         for (_api_player_id, player_name), acc in by_player.items():
             our_player_id = None
             if our_team_id is not None:
-                our_player_id = resolve_player_id(cur, player_name, [our_team_id])
+                our_player_id = resolve_player_id_strict(cur, player_name, [our_team_id])
             if our_player_id:
                 matched += 1
             else:
