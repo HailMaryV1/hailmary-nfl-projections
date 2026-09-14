@@ -93,6 +93,17 @@ HORIZON = 1
 MULTI_WEEK_HORIZONS = [2, 3, 5]
 MAX_GAMEWEEK = 18
 
+# Bump this whenever a real change to this file's OWN LOGIC (not just a
+# layer_weights/scoring_rules table edit, which already versions itself -
+# see get_or_create_algorithm_version) should be distinguishable in
+# algorithm_versions - e.g. a layer going from populated:false to a real
+# computed signal for the first time. get_or_create_algorithm_version
+# only diffs the weights/scoring_rules snapshot; without this, a pure
+# code change that alters no DB row would silently keep reusing the same
+# algorithm_version_id, making it impossible to tell "GW1's V1" and a
+# later "V1 + Form" apart from projections/predictions_and_actuals alone.
+MODEL_CODE_VERSION = "v1"
+
 # market family -> (scoring stat, estimator)
 LADDER_STAT_MAP = {
     "passing_yards": "passing_yards",
@@ -159,6 +170,7 @@ def load_layer_weights(cur):
 
 def get_or_create_algorithm_version(cur, scoring_rules, layer_weights):
     snapshot = {
+        "code_version": MODEL_CODE_VERSION,
         "scoring_rules": {f"{a}:{s}": p for (a, s), p in scoring_rules.items()},
         "layer_weights": {f"{h}:{pos}:{l}": w for (h, pos), layers in layer_weights.items() for l, w in layers.items()},
     }
@@ -173,7 +185,7 @@ def get_or_create_algorithm_version(cur, scoring_rules, layer_weights):
     next_revision = cur.fetchone()[0]
     cur.execute(
         "insert into algorithm_versions (revision, weights, note) values (%s, %s, %s) returning id",
-        (next_revision, json.dumps(snapshot), "compute_projections.py auto-snapshot"),
+        (next_revision, json.dumps(snapshot), f"compute_projections.py auto-snapshot (code_version={MODEL_CODE_VERSION})"),
     )
     return cur.fetchone()[0]
 

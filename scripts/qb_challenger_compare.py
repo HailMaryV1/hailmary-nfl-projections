@@ -5,6 +5,17 @@ QB-only ablation: isolates whether V2's QB improvement comes from the
 turnover correction, the opportunity/history layer, or both. RB/WR/TE are
 completely untouched - this only ever reads QB rows.
 
+BASELINE VERSION LABEL: this report grades against GW1's real, frozen V1
+baseline - algorithm_version_id=2 (verified: predictions_and_actuals'
+GW1 predicted_points match projections.total_points for
+algorithm_version_id=2 exactly, not =1). This is "V1" BEFORE the Form
+layer or any other later, independently-planned V1 change - do not treat
+this report's numbers as comparable to a later gameweek's ablation
+without checking scripts/qb_challenger_freeze.py's own printed
+algorithm_version_id for that gameweek. See
+scripts/qb_challenger_gw2_report.py for the equivalent GW2+ report, which
+prints its own baseline version explicitly for exactly this reason.
+
 Uses the REVISED (role-gated) V2-A numbers for the Opportunity variant's
 own production (pass/rush yards, TDs), per instruction to keep that fix
 for research rather than the original blind-fallback version.
@@ -225,6 +236,7 @@ def main():
                 "opportunity_adjustment": opportunity_adjustment,
             })
 
+        print("Baseline for this report: GW1, algorithm_version_id=2 ('V1', pre-Form) - NOT necessarily the same V1 a later gameweek's ablation uses.")
         print(f"Real GW1 QB rows in both V1 and revised V2-A: {len(merged)}")
         print(f"Rows that WOULD have gone negative under the pre-fix (ungated) turnover term: {negative_before_fix}\n")
         print("=== QB-only ablation: same real settled QB sample for every variant ===")

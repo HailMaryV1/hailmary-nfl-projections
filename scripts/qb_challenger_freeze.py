@@ -41,6 +41,24 @@ already-computed (data_confidence > 0) market-driven projection for that
 gameweek - see load_v1_qb_projections(). Placeholder/uncomputed rows are
 never frozen as if they were real zeros.
 
+Baseline versioning: "V1" is whatever compute_projections.py's LATEST
+algorithm_version currently is at the moment this script runs - it is not
+assumed to be the same model GW1 used. GW1 was frozen against
+algorithm_version_id=2 (verified: predictions_and_actuals.predicted_points
+for GW1 matches projections.total_points for algorithm_version_id=2
+exactly, not =1). If a real Form layer (or any other independently-planned
+V1 change) ships before this runs, `projections.algorithm_version_id`
+will have advanced and compute_projections.py's own MODEL_CODE_VERSION
+snapshot field will reflect it - this script records BOTH the exact
+algorithm_version_id and its free-text note into every frozen row
+(v1_algorithm_version_id / v1_algorithm_note), and prints a warning if the
+version about to be frozen for GW2+ is the SAME id GW1 used (meaning
+whatever "V1" is being compared here has NOT actually changed since GW1 -
+worth knowing either way, but especially if a baseline change was
+expected). This script's own QB-V1+INT/+Opportunity/Hybrid ADDITIONS on
+top of that baseline are completely unaffected by which V1 is live -
+those formulas are unchanged regardless.
+
 RUN (any time before the target gameweek's real kickoff):
     python scripts/qb_challenger_freeze.py <gameweek>
 """
@@ -56,6 +74,7 @@ from opportunity_v2_model_revised_fallback import ROLE_MULTIPLIER, NO_SIGNAL_MUL
 
 INT_POINTS, FUMBLE_POINTS = -2.0, -2.0
 BLEND_WEIGHT = 0.5  # fixed, stated, not tuned - reused verbatim from qb_challenger_compare.py
+GW1_BASELINE_ALGORITHM_VERSION_ID = 2  # verified against predictions_and_actuals - see module docstring
 
 
 def load_lineup_status(cur, gameweek):
@@ -80,13 +99,16 @@ def role_multiplier(player_id, lineup_status):
     return ROLE_MULTIPLIER.get(status, NO_SIGNAL_MULTIPLIER), status
 
 
-def load_v1_qb_projections(cur, gameweek):
+def load_latest_algorithm_version(cur):
+    cur.execute("select id, note from algorithm_versions order by id desc limit 1")
+    return cur.fetchone()
+
+
+def load_v1_qb_projections(cur, gameweek, algorithm_version_id):
     """Only real, actually-computed V1 numbers - data_confidence = 0 is
     compute_projections.py's own signal for an uncomputed/placeholder row
     (no real market data yet for that gameweek), not a genuine projection
     of zero, so those rows are excluded rather than frozen as real zeros."""
-    cur.execute("select max(id) from algorithm_versions")
-    latest = cur.fetchone()[0]
     cur.execute(
         """
         select pr.player_id, pr.total_points, pr.data_confidence
@@ -95,7 +117,7 @@ def load_v1_qb_projections(cur, gameweek):
         where pr.gameweek = %s and pr.horizon = 1 and pr.algorithm_version_id = %s
           and p.position = 'quarterback' and pr.data_confidence > 0
         """,
-        (gameweek, latest),
+        (gameweek, algorithm_version_id),
     )
     return {pid: (float(pts), float(conf)) for pid, pts, conf in cur.fetchall()}
 
@@ -167,7 +189,18 @@ def main():
         rows = load_rows(cur)
         priors = compute_league_priors(rows)
         lineup_status = load_lineup_status(cur, gameweek)
-        v1_data = load_v1_qb_projections(cur, gameweek)
+
+        algorithm_version_id, algorithm_note = load_latest_algorithm_version(cur)
+        print(f"V1 baseline for this freeze: algorithm_version_id={algorithm_version_id} (note: {algorithm_note!r}).")
+        if algorithm_version_id == GW1_BASELINE_ALGORITHM_VERSION_ID:
+            print(f"NOTE: this is the SAME algorithm_version_id GW1 was frozen against ({GW1_BASELINE_ALGORITHM_VERSION_ID}) - "
+                  f"V1 itself has not changed since GW1 as of this freeze. If a baseline change (e.g. the Form layer) was expected "
+                  f"before this gameweek, it has not shipped yet.")
+        else:
+            print(f"V1 has changed since GW1 (GW1 used algorithm_version_id={GW1_BASELINE_ALGORITHM_VERSION_ID}) - "
+                  f"this freeze's baseline is a genuinely different, later V1.")
+
+        v1_data = load_v1_qb_projections(cur, gameweek, algorithm_version_id)
         print(f"Real V1 GW{gameweek} QB projections available (data_confidence > 0): {len(v1_data)}. "
               f"Real GW{gameweek} lineup_status rows: {len(lineup_status)}.")
         if not v1_data:
@@ -219,20 +252,23 @@ def main():
                      expected_interceptions, expected_fumbles_lost, expected_pass_attempts, expected_rush_attempts,
                      n_prior_games, role_status_used, role_multiplier,
                      v1_data_confidence, int_rate, int_adjustment, fumble_adjustment, opportunity_adjustment,
-                     turnover_participation_status, turnover_participation_multiplier)
-                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                     turnover_participation_status, turnover_participation_multiplier,
+                     v1_algorithm_version_id, v1_algorithm_note)
+                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 on conflict (player_id, gameweek) do nothing
                 """,
                 (player_id, gameweek, round(qb_v1, 3), round(qb_v1_int, 3), round(qb_v1_opp, 3), round(qb_hybrid, 3),
                  round(exp_int, 4), round(exp_fum, 4), opp["exp_att"], opp["exp_rush_att"],
                  opp["n_prior"], opp["role_status"], opp["role_multiplier"],
                  round(data_confidence, 4), round(opp["int_rate"], 6), round(int_adjustment, 4), round(fumble_adjustment, 4),
-                 round(opportunity_adjustment, 3), turnover_status, turnover_mult),
+                 round(opportunity_adjustment, 3), turnover_status, turnover_mult,
+                 algorithm_version_id, algorithm_note),
             )
             frozen += cur.rowcount
 
         conn.commit()
-        print(f"Froze {frozen} new QB row(s) for gameweek {gameweek}. Already-frozen players were left untouched.")
+        print(f"Froze {frozen} new QB row(s) for gameweek {gameweek} against baseline algorithm_version_id={algorithm_version_id}. "
+              f"Already-frozen players were left untouched.")
     except Exception:
         conn.rollback()
         raise

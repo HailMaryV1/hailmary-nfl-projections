@@ -28,6 +28,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from env_utils import db_connect  # noqa: E402
 
 GAMEWEEK = 2
+GW1_BASELINE_ALGORITHM_VERSION_ID = 2  # verified - see qb_challenger_freeze.py's own docstring
 VARIANTS = [("QB-V1", "qb_v1_points"), ("QB-V1+INT", "qb_v1_int_points"),
             ("QB-V1+Opportunity", "qb_v1_opportunity_points"), ("QB-Hybrid", "qb_hybrid_points")]
 
@@ -35,7 +36,8 @@ VARIANTS = [("QB-V1", "qb_v1_points"), ("QB-V1+INT", "qb_v1_int_points"),
 def load_frozen(cur):
     cur.execute(
         """
-        select player_id, qb_v1_points, qb_v1_int_points, qb_v1_opportunity_points, qb_hybrid_points, frozen_at
+        select player_id, qb_v1_points, qb_v1_int_points, qb_v1_opportunity_points, qb_hybrid_points, frozen_at,
+               v1_algorithm_version_id, v1_algorithm_note
         from qb_challenger_freeze
         where gameweek = %s
         """,
@@ -88,6 +90,21 @@ def main():
         if not frozen:
             print(f"No frozen qb_challenger_freeze rows exist for gameweek {GAMEWEEK} yet - run scripts/qb_challenger_freeze.py {GAMEWEEK} before kickoff first.")
             return
+
+        baseline_versions = {(f["v1_algorithm_version_id"], f["v1_algorithm_note"]) for f in frozen.values()}
+        if len(baseline_versions) > 1:
+            print(f"WARNING: this GW{GAMEWEEK} freeze mixes MULTIPLE V1 baseline versions across players: {baseline_versions} - "
+                  f"likely because compute_projections.py's live version changed between separate freeze runs. Interpret per-player "
+                  f"results with this in mind; aggregate metrics below still grade each player against whatever the same row's own "
+                  f"predicted_points was, so they remain individually valid.")
+        for version_id, note in baseline_versions:
+            if version_id == GW1_BASELINE_ALGORITHM_VERSION_ID:
+                print(f"Baseline for GW{GAMEWEEK}: algorithm_version_id={version_id} (note: {note!r}) - "
+                      f"the SAME V1 GW1 used. No baseline model change occurred between GW1 and GW{GAMEWEEK}.")
+            else:
+                print(f"Baseline for GW{GAMEWEEK}: algorithm_version_id={version_id} (note: {note!r}) - "
+                      f"DIFFERENT from GW1's algorithm_version_id={GW1_BASELINE_ALGORITHM_VERSION_ID}. "
+                      f"Do not treat this gameweek's V1 numbers as the same model GW1 was graded against.")
 
         actuals = load_actuals(cur, list(frozen.keys()))
         merged = []
