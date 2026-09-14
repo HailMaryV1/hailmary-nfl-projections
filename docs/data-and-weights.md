@@ -678,3 +678,50 @@ CI failure rate needs addressing later, not yet acted on.
   real record. Verified live: registered, manually triggered once via
   `Start-ScheduledTask` (not just running the underlying script by hand),
   confirmed `LastTaskResult: 0` and a real log entry from that exact run.
+
+## 2026-09-14 - Real DST under-projection bug found and fixed
+
+- Found live from the site itself: `/projections` showed D/ST units
+  projected at ~0.4-2.0 points this gameweek, while `/player-stats` (real
+  gameweek-1 results, from the FanTeam stats ingestion shipped this same
+  day) showed those SAME real units actually scoring 10-18 real points
+  (Cincinnati Bengals D/ST and Pittsburgh Steelers D/ST both 18.0).
+- Root cause (confirmed by reading `compute_projections.py` +
+  `stat_math.py` and manually reproducing FanTeam's own real scoring
+  formula against a real example - Jacksonville's real GW1 line: 5 sacks,
+  1 INT, 1 fumble recovery, 10 points allowed = 5+2+2+4 = 13, exactly
+  matching their stored real 13.0 total, confirming the *actual* figure is
+  genuinely trustworthy): `compute_defense_special_stats` only ever priced
+  the points-allowed component (a real Fixture Quality signal, from
+  spread+total odds). Every other real, scored defense_special stat
+  (sacks, interceptions, fumble recoveries, safeties, blocked kicks,
+  defensive/return TDs) was unconditionally hardcoded to
+  `expected_count: 0.0` - not a scaling bug, a genuinely missing signal,
+  honestly documented as such in the module's own docstring at the time
+  (no bookmaker market exists for a team defensive unit's own sacks/
+  turnovers - the one market that did, Sacks, prices individual defenders
+  this schema can't represent).
+- Real fix: `compute_defense_special_form` (new) averages a team's own
+  real season-to-date `player_stats` for exactly these 7 stats, counting
+  only gameweeks strictly before the one being projected (no lookahead).
+  This is the Form layer becoming real for the first time anywhere in the
+  engine - `layer_weights` already had a real, non-zero `form` weight
+  defined for defense_special (0.2 at horizon 1) despite it having never
+  been populated before now. Verified live against production: Arizona
+  Cardinals D/ST's real GW1 line (3 sacks, 1 INT, 1 fumble recovery, 1
+  blocked kick) correctly feeds forward as their real Form baseline for
+  gameweek 2.
+- Real, honest limitation this can't fix: gameweek 1 itself has no real
+  prior gameweek to average, so its own projection is unchanged (confirmed
+  live: recomputing gameweek 1 in place reports "0 defense_special row(s)
+  with a real Form signal", exactly as expected - not a bug, there is
+  genuinely no data before week 1). The fix takes effect from gameweek 2
+  onward, once real gameweek-1 player_stats exist to average.
+- Deliberately NOT run for gameweek 2 yet at the time of this fix: gameweek
+  2's real fixtures already exist (FanTeam publishes the full season
+  schedule upfront), but gameweek 1 itself hadn't finished (292 of 603
+  players had a real captured result) - `compute_projections.py`'s
+  "current gameweek" is purely "the latest gameweek with projections
+  written", not schedule-aware, so computing gameweek 2 immediately would
+  have flipped the whole site's displayed "current week" mid-way through
+  gameweek 1 still being live. Held until gameweek 1 fully finishes.

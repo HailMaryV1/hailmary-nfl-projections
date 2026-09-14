@@ -26,14 +26,18 @@ READ THIS BEFORE ASSUMING SOMETHING IS MISSING:
   played, there is no real distribution yet to calibrate against. Writing
   a number here now would be inventing one, not measuring one. Revisit
   once real predictions_and_actuals history exists.
-- Form and Fixture Quality layers are `populated: false` for every player
-  right now, correctly, not by omission: Form needs real prior-gameweek
-  player_stats (none exist yet - the season hasn't been played), and
-  Fixture Quality needs a real measure of opponent defensive strength
-  (also derived from played games). The four-content-layer renormalization
-  already handles this - see layer_weights' own migration comment - so
-  `total_points` this early is effectively 100% Live-Odds-driven, which is
-  the honest state of a Week 1 projection, not a defect.
+- Form is real for defense_special as of 2026-09-14 (see the bullet
+  below) - `compute_defense_special_form` averages this unit's own real
+  season-to-date player_stats rows for every gameweek strictly before the
+  one being projected, honestly `populated: false` until at least one real
+  prior gameweek exists for that team. Offense's own Form layer still
+  isn't built - real prior-gameweek player_stats exist now, but nothing
+  yet turns them into a per-player rate the way defense_special's does.
+  Fixture Quality for OFFENSE players similarly stays `populated: false` -
+  needs a real measure of opponent defensive strength (also derived from
+  played games), not yet built. The four-content-layer renormalization
+  already handles a layer being unpopulated - see layer_weights' own
+  migration comment.
 - rushing_td and receiving_td individually still have NO signal (a real,
   live "Score Any TD" market exists - see `anytime_td` below - but it
   doesn't distinguish which type of TD, so the two stay at 0 each).
@@ -56,8 +60,15 @@ READ THIS BEFORE ASSUMING SOMETHING IS MISSING:
   points_allowed_distribution). This is genuinely a Fixture Quality signal,
   not Live Odds - `per_layer.fixture_quality.populated` reflects that.
   Individual defensive-play stats (sacks, turnovers, blocked kicks,
-  defensive/return TDs) still have no real data source and stay at 0 -
-  reported plainly in the run summary below, not hidden.
+  defensive/return TDs) have no bookmaker market at all, but DO now have a
+  real Form signal (`compute_defense_special_form`) - this is the real fix
+  for a confirmed bug found live 2026-09-14: real gameweek-1 D/ST units
+  scored 10-18 real points (mostly sacks/turnovers/defensive TDs), while
+  this engine had them projected at ~0.4-2.0 (points-allowed only,
+  everything else hardcoded to 0). A brand-new team/season with no real
+  prior gameweek yet still honestly falls back to 0 for these stats - this
+  can't help gameweek 1 itself, only gameweek 2 onward, once real
+  gameweek-1 player_stats exist to average.
 
 RUN:
     python scripts/compute_projections.py [gameweek]
@@ -277,7 +288,52 @@ def opponent_expected_points(cur, fixture_id, team_id, home_team_id, away_team_i
     return away_expected if team_id == home_team_id else home_expected
 
 
-def compute_defense_special_stats(cur, fixture_id, team_id, home_team_id, away_team_id):
+# scoring_rules stat name -> the real player_stats column it's counted
+# from. Real, confirmed live 2026-09-14: these are exactly the stats a
+# real D/ST unit's actual score turned out to be dominated by (a real
+# gameweek-1 unit scored 13-18 real points mostly from sacks/turnovers/
+# defensive TDs - see docs/data-and-weights.md's own diagnosis of why
+# projections were landing at ~0.4-2.0 while real scores were 10x higher).
+DEFENSE_FORM_COLUMN = {
+    "sack": "sacks",
+    "interception": "def_interceptions",
+    "fumble_recovery": "fumble_recoveries",
+    "safety": "safeties",
+    "blocked_kick": "blocked_kicks",
+    "defensive_td": "def_special_tds",
+    "return_td": "return_tds",
+}
+SEASON = "2026"  # must match scripts/import_fanteam_stats.py's own SEASON
+
+
+def compute_defense_special_form(cur, player_id, gameweek):
+    """Real season-to-date per-game rate for this D/ST unit's own real
+    individual defensive-play production - the Form layer, now real for
+    the first time (see module docstring's 2026-09-14 update): this
+    project's own player_stats has real completed-gameweek rows to
+    average once at least one real gameweek has been played. Only counts
+    gameweeks strictly before the one being projected - never the game
+    itself, no lookahead. A brand-new season with no real prior gameweek
+    (or this specific team's data not ingested yet) honestly falls back
+    to unpopulated/0, same discipline as every other real gap in this
+    engine - never a guessed non-zero prior."""
+    columns = list(DEFENSE_FORM_COLUMN.values())
+    cur.execute(
+        f"select {', '.join(columns)} from player_stats where player_id = %s and season = %s and gameweek is not null and gameweek < %s",
+        (player_id, SEASON, gameweek),
+    )
+    rows = cur.fetchall()
+    if not rows:
+        return {stat: {"expected_count": 0.0, "populated": False} for stat in DEFENSE_FORM_COLUMN}
+    games_played = len(rows)
+    totals = [0.0] * len(columns)
+    for row in rows:
+        for i, value in enumerate(row):
+            totals[i] += float(value or 0)
+    return {stat: {"expected_count": round(totals[i] / games_played, 3), "populated": True} for i, stat in enumerate(DEFENSE_FORM_COLUMN)}
+
+
+def compute_defense_special_stats(cur, player_id, fixture_id, team_id, home_team_id, away_team_id, gameweek):
     per_stat = {}
     opponent_points = opponent_expected_points(cur, fixture_id, team_id, home_team_id, away_team_id)
     if opponent_points is not None:
@@ -287,12 +343,14 @@ def compute_defense_special_stats(cur, fixture_id, team_id, home_team_id, away_t
         for stat, _low, _high in POINTS_ALLOWED_TIERS:
             per_stat[stat] = {"expected_count": 0.0, "populated": False}
     # Individual defensive-play stats (sacks, turnovers, blocked kicks,
-    # defensive/return TDs) - no real team-level data source found yet
-    # (the only market that existed, Sacks, prices individual defenders
-    # this schema can't represent - see scrape_spreadex_nfl_props.py).
-    for stat in ("sack", "interception", "fumble_recovery", "safety", "blocked_kick", "defensive_td", "return_td"):
-        per_stat[stat] = {"expected_count": 0.0, "populated": False}
-    return per_stat, opponent_points
+    # defensive/return TDs) - no real bookmaker market exists for these at
+    # all (the one that existed, Sacks, prices individual defenders this
+    # schema can't represent - see scrape_spreadex_nfl_props.py), but a
+    # real Form signal now does, once real prior-gameweek data exists.
+    form_stats = compute_defense_special_form(cur, player_id, gameweek)
+    per_stat.update(form_stats)
+    form_populated = any(info["populated"] for info in form_stats.values())
+    return per_stat, opponent_points, form_populated
 
 
 def price_stats(per_stat, applies_to, scoring_rules, xmins=1.0):
@@ -441,7 +499,7 @@ def main():
         cur.execute("select id, team_id, position from players where is_active = true and team_id is not null")
         players = cur.fetchall()
 
-        written, no_fixture, defense_skipped = 0, 0, 0
+        written, no_fixture, defense_skipped, defense_form_populated = 0, 0, 0, 0
         base_results = {}  # player_id -> real horizon-1 result, reused below for multi-week horizons
 
         for player_id, team_id, position in players:
@@ -466,14 +524,17 @@ def main():
                 # priced to score fewer points, which this unit is
                 # rewarded for conceding fewer of. This is a real
                 # Fixture Quality signal, not a Live Odds one.
-                per_stat, opponent_points = compute_defense_special_stats(cur, fixture_id, team_id, home_team_id, away_team_id)
+                per_stat, opponent_points, form_populated = compute_defense_special_stats(cur, player_id, fixture_id, team_id, home_team_id, away_team_id, gameweek)
                 total_points = price_stats(per_stat, "defense_special", scoring_rules, xmins)
                 live_odds_populated = False
                 fixture_quality_populated = opponent_points is not None
                 if opponent_points is None:
                     defense_skipped += 1
+                if form_populated:
+                    defense_form_populated += 1
             else:
                 fixture_quality_populated = False
+                form_populated = False
                 families = market_odds_by_family(cur, player_id, fixture_id)
                 per_stat = compute_offense_player_stats(families)
                 total_points = price_stats(per_stat, "offense", scoring_rules, xmins)
@@ -481,12 +542,12 @@ def main():
 
             per_layer = {
                 "lineup_status": {"probability": xmins, "status": status, "source": status_source},
-                "form": {"populated": False, "weight": weights_for_position.get("form")},
+                "form": {"populated": form_populated, "weight": weights_for_position.get("form")},
                 "fixture_quantity": {"populated": True, "value": fixture_quantity, "weight": weights_for_position.get("fixture_quantity")},
                 "fixture_quality": {"populated": fixture_quality_populated, "weight": weights_for_position.get("fixture_quality")},
                 "live_odds": {"populated": live_odds_populated, "weight": weights_for_position.get("live_odds")},
             }
-            data_confidence = round(xmins * (1.0 if (live_odds_populated or fixture_quality_populated) else 0.0), 3)
+            data_confidence = round(xmins * (1.0 if (live_odds_populated or fixture_quality_populated or form_populated) else 0.0), 3)
 
             upsert_projection(cur, player_id, gameweek, HORIZON, algorithm_version_id, total_points, per_stat, per_layer, data_confidence)
             written += 1
@@ -499,7 +560,8 @@ def main():
         print(
             f"Gameweek {gameweek}, horizon {HORIZON}: {written} projections written "
             f"(algorithm_version {algorithm_version_id}), {no_fixture} skipped (no fixture this gameweek), "
-            f"{defense_skipped} defense_special row(s) with no real game_odds posted yet (fell back to 0)."
+            f"{defense_skipped} defense_special row(s) with no real game_odds posted yet (fell back to 0), "
+            f"{defense_form_populated} defense_special row(s) with a real Form signal (season-to-date sacks/turnovers/defensive TDs)."
         )
 
         # Multi-week horizons - real for every player who got a real
@@ -519,7 +581,7 @@ def main():
                 weights_for_position = layer_weights.get((h, base["position"]), {})
                 per_layer = {
                     "lineup_status": base["per_layer"]["lineup_status"],
-                    "form": {"populated": False, "weight": weights_for_position.get("form")},
+                    "form": {"populated": base["per_layer"]["form"]["populated"], "weight": weights_for_position.get("form")},
                     "fixture_quantity": {"populated": True, "value": round(real_games / weeks_in_window, 3), "weight": weights_for_position.get("fixture_quantity")},
                     "fixture_quality": {
                         "populated": True,
