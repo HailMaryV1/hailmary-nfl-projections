@@ -38,10 +38,21 @@ export async function buildPool(selections: Selection[]): Promise<{ ok: true } |
   const algorithmVersionId = latestVersionRow?.id;
   if (!algorithmVersionId) return { error: "No projections available yet." };
 
+  // Real bug fix: without pinning to one real (data_confidence > 0)
+  // gameweek, this returned one row per (player, gameweek) once
+  // compute_projections.py had written a placeholder row for an
+  // upcoming, not-yet-priced gameweek - doubling every player and
+  // breaking the "exactly 28" check below. See
+  // frontend/app/(site)/projections/page.tsx for the same fix elsewhere.
+  const { data: gwRow } = await publicClient.from("projections").select("gameweek").eq("horizon", 1).eq("algorithm_version_id", algorithmVersionId).gt("data_confidence", 0).order("gameweek", { ascending: false }).limit(1).maybeSingle();
+  const gameweek = gwRow?.gameweek;
+  if (!gameweek) return { error: "No priced projections available yet." };
+
   const { data: rows, error: playersError } = await publicClient
     .from("projections")
     .select("total_points, players!inner(id, full_name, position, price, team_id, teams!team_id(abbr))")
     .eq("horizon", 1)
+    .eq("gameweek", gameweek)
     .eq("algorithm_version_id", algorithmVersionId)
     .in("players.id", ids);
   if (playersError) return { error: `Failed to load real player data: ${playersError.message}` };

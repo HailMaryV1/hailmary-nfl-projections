@@ -15,11 +15,23 @@ export default async function PoolBuilderPage() {
     .maybeSingle();
   const algorithmVersionId = latestVersionRow?.id;
 
-  const { data: rows, error } = algorithmVersionId
+  // Real bug fix: without pinning to one real (data_confidence > 0)
+  // gameweek, this query returned one row per (player, gameweek) - once
+  // compute_projections.py had written a placeholder row for an
+  // upcoming, not-yet-priced gameweek, every player appeared TWICE here
+  // (once correctly priced, once at 0). See
+  // frontend/app/(site)/projections/page.tsx for the same fix elsewhere.
+  const { data: gwRow } = algorithmVersionId
+    ? await supabase.from("projections").select("gameweek").eq("horizon", 1).eq("algorithm_version_id", algorithmVersionId).gt("data_confidence", 0).order("gameweek", { ascending: false }).limit(1).maybeSingle()
+    : { data: null };
+  const gameweek = gwRow?.gameweek;
+
+  const { data: rows, error } = algorithmVersionId && gameweek
     ? await supabase
         .from("projections")
         .select("total_points, players!inner(id, full_name, position, price, teams!team_id(abbr))")
         .eq("horizon", 1)
+        .eq("gameweek", gameweek)
         .eq("algorithm_version_id", algorithmVersionId)
         .in("players.position", ["quarterback", "running_back", "wide_receiver", "tight_end", "defense_special"])
         .order("total_points", { ascending: false })

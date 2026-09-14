@@ -199,8 +199,13 @@ export default async function HomePage() {
   ]);
   const algorithmVersionId = latestVersionRow?.id;
 
+  // compute_projections.py writes a placeholder (data_confidence = 0) row for
+  // an upcoming gameweek before real market odds exist for it - filtering on
+  // data_confidence here stops the site jumping to an unpriced future
+  // gameweek (all real projections would show as 0) while its predecessor is
+  // still the real, current one.
   const { data: gwRow } = algorithmVersionId
-    ? await supabase.from("projections").select("gameweek").eq("horizon", 1).eq("algorithm_version_id", algorithmVersionId).order("gameweek", { ascending: false }).limit(1).maybeSingle()
+    ? await supabase.from("projections").select("gameweek").eq("horizon", 1).eq("algorithm_version_id", algorithmVersionId).gt("data_confidence", 0).order("gameweek", { ascending: false }).limit(1).maybeSingle()
     : { data: null };
   const gameweek = gwRow?.gameweek;
 

@@ -230,12 +230,14 @@ export async function loadComparePlayers(
 
   // Same "horizon 1's own gameweek" convention as app/page.tsx - every
   // horizon in one pipeline run shares the same starting gameweek.
+  // See frontend/app/(site)/projections/page.tsx for why data_confidence is filtered here.
   const gwResult = algorithmVersionId
     ? await supabase
         .from("projections")
         .select("gameweek")
         .eq("horizon", 1)
         .eq("algorithm_version_id", algorithmVersionId)
+        .gt("data_confidence", 0)
         .order("gameweek", { ascending: false })
         .limit(1)
         .maybeSingle()

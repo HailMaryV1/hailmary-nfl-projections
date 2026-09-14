@@ -34,8 +34,9 @@ export default async function CustomPlaybookPage() {
     const publicClient = createPublicClient();
     const { data: latestVersionRow } = await publicClient.from("algorithm_versions").select("id").order("id", { ascending: false }).limit(1).maybeSingle();
     const algorithmVersionId = latestVersionRow?.id;
+    // See frontend/app/(site)/projections/page.tsx for why data_confidence is filtered here.
     const { data: gwRow } = algorithmVersionId
-      ? await publicClient.from("projections").select("gameweek").eq("horizon", 1).eq("algorithm_version_id", algorithmVersionId).order("gameweek", { ascending: false }).limit(1).maybeSingle()
+      ? await publicClient.from("projections").select("gameweek").eq("horizon", 1).eq("algorithm_version_id", algorithmVersionId).gt("data_confidence", 0).order("gameweek", { ascending: false }).limit(1).maybeSingle()
       : { data: null };
     currentGameweek = gwRow?.gameweek ?? null;
 

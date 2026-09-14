@@ -12,12 +12,14 @@ export default async function FixturesPage() {
     .limit(1)
     .maybeSingle();
 
+  // See frontend/app/(site)/projections/page.tsx for why data_confidence is filtered here.
   const { data: gwRow } = latestVersionRow
     ? await supabase
         .from("projections")
         .select("gameweek")
         .eq("horizon", 1)
         .eq("algorithm_version_id", latestVersionRow.id)
+        .gt("data_confidence", 0)
         .order("gameweek", { ascending: false })
         .limit(1)
         .maybeSingle()

@@ -2,6 +2,7 @@ import Link from "next/link";
 import RatingsTable, { type PlayerRow } from "../../RatingsTable";
 import { createPublicClient } from "@/lib/supabaseClient";
 import { computeDifficultyThresholds, difficultyTier } from "@/lib/fixtureDifficulty";
+import GameweekSelect from "./GameweekSelect";
 
 const HORIZONS = [1, 2, 3, 5];
 const HORIZON_LABELS: Record<number, string> = { 1: "This Week", 2: "Next 2", 3: "Next 3", 5: "Next 5" };
@@ -10,8 +11,8 @@ const HORIZON_LABELS: Record<number, string> = { 1: "This Week", 2: "Next 2", 3:
 // homepage's hero/ticker cards actually link to. Same real query shape as
 // /value-finder (this page's own sibling, just opened straight into the
 // points sort rather than value).
-export default async function ProjectionsPage({ searchParams }: { searchParams: Promise<{ horizon?: string }> }) {
-  const { horizon: horizonParam } = await searchParams;
+export default async function ProjectionsPage({ searchParams }: { searchParams: Promise<{ horizon?: string; gameweek?: string }> }) {
+  const { horizon: horizonParam, gameweek: gameweekParam } = await searchParams;
   const horizon = HORIZONS.includes(Number(horizonParam)) ? Number(horizonParam) : 1;
 
   const supabase = createPublicClient();
@@ -24,17 +25,29 @@ export default async function ProjectionsPage({ searchParams }: { searchParams: 
     .maybeSingle();
   const algorithmVersionId = latestVersionRow?.id;
 
+  // The full real schedule loaded so far, so a user can pick ANY gameweek
+  // (past or upcoming), not just whichever one is "current" by default.
+  const { data: gwFixtureRows } = await supabase.from("fixtures").select("gameweek").order("gameweek");
+  const availableGameweeks = Array.from(new Set((gwFixtureRows ?? []).map((r) => r.gameweek))).sort((a, b) => a - b);
+
+  // compute_projections.py writes a placeholder (data_confidence = 0) row for
+  // an upcoming gameweek before real market odds exist for it - this is the
+  // DEFAULT gameweek shown (the real, currently-priced one), separate from
+  // whatever a user explicitly picks below via ?gameweek=.
   const { data: gwRow } = algorithmVersionId
     ? await supabase
         .from("projections")
         .select("gameweek")
         .eq("horizon", 1)
         .eq("algorithm_version_id", algorithmVersionId)
+        .gt("data_confidence", 0)
         .order("gameweek", { ascending: false })
         .limit(1)
         .maybeSingle()
     : { data: null };
-  const gameweek = gwRow?.gameweek;
+  const defaultGameweek = gwRow?.gameweek ?? availableGameweeks[availableGameweeks.length - 1] ?? null;
+  const requestedGameweek = Number(gameweekParam);
+  const gameweek = availableGameweeks.includes(requestedGameweek) ? requestedGameweek : defaultGameweek;
 
   type ProjectionRow = {
     total_points: number;
@@ -113,6 +126,8 @@ export default async function ProjectionsPage({ searchParams }: { searchParams: 
       };
     });
 
+  const isPriced = players.some((p) => (p.dataConfidence ?? 0) > 0);
+
   return (
     <main className="mx-auto w-full min-w-0 max-w-5xl flex-1 p-4 sm:p-6">
         <p className="text-xs font-bold uppercase tracking-wide text-sky-400">Every Player · Every Week</p>
@@ -122,19 +137,32 @@ export default async function ProjectionsPage({ searchParams }: { searchParams: 
           value per £m.
         </p>
 
-        <div className="mt-4 flex flex-wrap gap-1">
-          {HORIZONS.map((h) => (
-            <Link
-              key={h}
-              href={h === 1 ? "/projections" : `/projections?horizon=${h}`}
-              className={`rounded-full px-3.5 py-1.5 font-[family-name:var(--font-cond)] text-sm font-bold uppercase tracking-wide ${
-                h === horizon ? "bg-sky-500 text-navy-950" : "bg-navy-900 text-navy-400 hover:bg-navy-800"
-              }`}
-            >
-              {HORIZON_LABELS[h]}
-            </Link>
-          ))}
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap gap-1">
+            {HORIZONS.map((h) => (
+              <Link
+                key={h}
+                href={`/projections?horizon=${h}${gameweek && gameweek !== defaultGameweek ? `&gameweek=${gameweek}` : ""}`}
+                className={`rounded-full px-3.5 py-1.5 font-[family-name:var(--font-cond)] text-sm font-bold uppercase tracking-wide ${
+                  h === horizon ? "bg-sky-500 text-navy-950" : "bg-navy-900 text-navy-400 hover:bg-navy-800"
+                }`}
+              >
+                {HORIZON_LABELS[h]}
+              </Link>
+            ))}
+          </div>
+
+          {availableGameweeks.length > 1 && gameweek && (
+            <GameweekSelect gameweeks={availableGameweeks} selected={gameweek} defaultGameweek={defaultGameweek} horizon={horizon} />
+          )}
         </div>
+
+        {gameweek && !isPriced && players.length > 0 && (
+          <p className="mt-4 rounded-lg border border-amber-700/50 bg-amber-950/40 px-3 py-2 text-sm text-amber-300">
+            GW{gameweek} hasn&apos;t been priced yet - real market odds aren&apos;t posted until closer to kickoff, so every total below is a placeholder
+            0.0 until then.
+          </p>
+        )}
 
         {players.length === 0 ? (
           <p className="mt-8 text-sm text-navy-400">No priced projections yet - run the pipeline to populate this gameweek.</p>
