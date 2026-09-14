@@ -47,6 +47,26 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: python scripts/compute_projections.py
 
+      # Freeze/capture pair (ported from the sibling EFL-Projections repo):
+      # freeze snapshots this run's horizon=1 projection permanently before
+      # it can change again; capture fills in the real result once a
+      # player's game has actually finished. Both are idempotent, safe to
+      # run unconditionally every 6 hours. Note: capture only has real
+      # actuals to find once someone has manually run
+      # scrape_fanteam_stats.py + import_fanteam_stats.py (excluded from
+      # this automated workflow, same as the rest of FanTeam - see the
+      # "Data ingestion" step's own comment above) - until then it's a
+      # harmless no-op.
+      - name: Freeze predictions
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/freeze_predictions.py
+
+      - name: Capture actuals
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python scripts/capture_actuals.py
+
       - name: Fail the run if data ingestion had a real problem
         if: steps.ingestion.outcome == 'failure'
         run: |

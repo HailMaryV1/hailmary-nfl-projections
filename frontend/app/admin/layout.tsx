@@ -30,6 +30,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <Link href="/admin/layer-weights" className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-navy-300 hover:bg-navy-900 hover:text-sky-300">
             Layer Weights
           </Link>
+          <Link href="/admin/accuracy" className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-navy-300 hover:bg-navy-900 hover:text-sky-300">
+            Accuracy
+          </Link>
           <div className="my-1 border-t border-navy-800" />
           <Link href="/admin/playbook" className="whitespace-nowrap rounded-md px-3 py-2 text-sm text-navy-300 hover:bg-navy-900 hover:text-sky-300">
             My Playbook

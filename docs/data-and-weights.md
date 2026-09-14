@@ -601,3 +601,41 @@ CI failure rate needs addressing later, not yet acted on.
   numbers with no frontend changes needed - it already aggregated
   `player_stats` generically and was only ever waiting on real rows to
   exist.
+
+## 2026-09-14 - Real freeze/capture accuracy pipeline live, backfilled for GW1
+
+- `predictions_and_actuals` (migration 0009) had existed since Phase 1
+  with nothing writing to it - no freeze/capture pipeline, and no
+  `/admin/accuracy` page, unlike the sibling EFL-Projections/
+  dreamteam-projections repos. Real post-game `player_stats` (shipped
+  2026-09-13) was the missing prerequisite; this closes the gap.
+- New `scripts/freeze_predictions.py` + `scripts/capture_actuals.py`,
+  ported from the sibling EFL-Projections repo's own pair (same
+  `on conflict (player_id, gameweek) do nothing` freeze semantics, same
+  real-fixture-kickoff gate before capturing an actual). `capture_actuals.py`
+  uses `season = '2026'`, matching `scripts/import_fanteam_stats.py`'s own
+  `SEASON` constant.
+- `actual_snap_pct` stays null deliberately - FanTeam's real per-player
+  stats don't currently expose a real snap-percentage figure, and this
+  project's "never fabricate" rule means it isn't backfilled from a proxy.
+- Wired into `.github/workflows/refresh_nfl.yml` right after "Compute
+  projections", unconditional every 6-hourly run. Real, current
+  limitation: `capture_actuals.py` only finds real actuals once someone
+  has manually run the FanTeam stats scripts (excluded from CI, same
+  datacenter-IP reason as the rest of FanTeam) - until then it's a
+  harmless no-op, same shape as the FanTeam-manual precedent above.
+- New `/admin/accuracy` page - ported from the sibling EFL-Projections
+  repo's own Accuracy page (`lib/accuracyMetrics.ts`,
+  `lib/supabasePaginate.ts` ported verbatim/near-verbatim), trimmed to
+  drop its "club predictions" section entirely - NFL has no equivalent to
+  Fantasy EFL's separate club win/draw/clean-sheet picks. Uses
+  `createPublicClient()`, not a service-role client - `predictions_and_actuals`
+  already has "public read" RLS.
+- Backfilled live against production: froze all 603 real GW1 horizon=1
+  predictions, then captured the 41 real results already sitting in
+  `player_stats` (e.g. Sam Darnold predicted 17.7, actual 0.52 - a real
+  -17.2 miss; Drew Lock predicted 0.0 - hadn't been in a projected lineup
+  at freeze time - actual 12.78). Verified live: headline stats (MAE 5.83,
+  median 5.53, RMSE 7.29, bias +0.07), error-distance buckets, and the
+  per-position breakdown all render from these real rows with no
+  fabricated placeholder numbers anywhere.
