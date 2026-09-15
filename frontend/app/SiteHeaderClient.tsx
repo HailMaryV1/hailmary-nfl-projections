@@ -66,8 +66,28 @@ const AdminIcon: NavIcon = ({ className }) => (
     <path d="M9.5 12l1.8 1.8L15 10" />
   </svg>
 );
+const SwitchGameIcon: NavIcon = ({ className }) => (
+  <svg {...iconProps} className={className}>
+    <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+    <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+    <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+    <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+  </svg>
+);
 
 type NavItem = { href: string; label: string; icon: NavIcon };
+
+// Real, separately-deployed sibling sites (own repo/domain/database each -
+// every game keeps its own independent identity, never a shared squad/
+// calibration). This is pure cross-site navigation, not shared state, so
+// plain <a> tags (full page loads) are correct here, not Next's <Link>.
+type Game = { key: "efl" | "nfl" | "dreamteam"; label: string; href: string };
+const GAMES: Game[] = [
+  { key: "efl", label: "EFL Projections", href: "https://efl.hailmaryfantasysports.co.uk" },
+  { key: "nfl", label: "NFL Projections", href: "https://nfl.hailmaryfantasysports.co.uk" },
+  { key: "dreamteam", label: "Dream Team Projections", href: "https://dreamteam.hailmaryfantasysports.co.uk" },
+];
+const CURRENT_GAME: Game["key"] = "nfl";
 
 // ANALYSE (read the model's own numbers) / BUILD (use them to make a real
 // squad/pick decision) - same grouping ported from the sibling
@@ -171,6 +191,29 @@ export default function SiteHeaderClient({ isAdmin }: { isAdmin: boolean }) {
 
   const nav = (onLinkClick?: () => void) => (
     <nav className="flex flex-col gap-1">
+      <NavGroupLabel>Switch Game</NavGroupLabel>
+      {GAMES.map((game) =>
+        game.key === CURRENT_GAME ? (
+          <span
+            key={game.key}
+            className="flex items-center gap-3 rounded-lg bg-sky-400/10 px-3 py-2.5 text-sm font-semibold text-sky-300"
+            aria-current="page"
+          >
+            <SwitchGameIcon className="h-5 w-5 shrink-0" />
+            <span className="truncate">{game.label}</span>
+          </span>
+        ) : (
+          <a
+            key={game.key}
+            href={game.href}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-navy-300 transition-colors hover:bg-navy-900 hover:text-navy-100"
+          >
+            <SwitchGameIcon className="h-5 w-5 shrink-0" />
+            <span className="truncate">{game.label}</span>
+          </a>
+        )
+      )}
+      <div className="my-2 border-t border-navy-800" />
       <NavLink href="/" label="Home" icon={HomeIcon} active={pathname === "/"} onClick={onLinkClick} />
       <NavGroupLabel>Analyse</NavGroupLabel>
       {ANALYSE_LINKS.map((link) => (
