@@ -3,10 +3,31 @@ scrape_spreadex_nfl_props.py
 -------------------------------
 Real player-prop odds from Spreadex's real "Weekly Player Markets" page -
 confirmed live 2026-09-07 to carry every one of the week's 16 real
-fixtures' player markets on ONE aggregated page, split across 5 real tabs
-(Passing, Rushing + Receiving, Rushing, Receiving, Sacks). Unlike Dream
-Team's per-fixture Spreadex scrape, there's no per-fixture navigation here
-- just switch tabs and read.
+fixtures' player markets on ONE aggregated page, split into real tabs
+(Passing, Rushing, Receiving - Sacks deliberately excluded, see below).
+Unlike Dream Team's per-fixture Spreadex scrape, there's no per-fixture
+navigation here - just switch tabs and read.
+
+REAL, CONFIRMED-RECURRING MAINTENANCE ITEM (found live 2026-09-15, cost
+~15 hours of silent 0-row runs that week - CI's continue-on-error hid it):
+Spreadex mints a NEW opaque page id for "Weekly Player Markets" every
+single NFL week (GW1 was `.../fo/p9852595`; GW2 is `.../fo/p10152662`) -
+the old id doesn't 404, it silently REDIRECTS to the site homepage, which
+is why every tab-click below timed out rather than erroring cleanly. This
+WILL happen again every week - there is no discoverable stable URL for
+this page (confirmed live: `/nfl`, `/american-football`, and a sitemap.xml
+all redirect/404; the id is only reachable by opening any of that week's
+real per-fixture pages - themselves also week-numbered - and clicking the
+in-page "Weekly Player Markets" link, an Angular client-side route with no
+plain href). Reverse-engineering Spreadex's own internal model-subscription
+API (`/sports/model/api/SubscribeModel?modelRef=...`) to auto-discover this
+was deliberately NOT attempted - fragile, undocumented, and out of scope
+for a real-data-only ingestion script. Until a better discovery mechanism
+exists, THE URL BELOW MUST BE UPDATED BY HAND EACH WEEK: open any current
+NFL fixture page on spreadex.com, click "Weekly Player Markets" near the
+top, copy the resulting URL. main() now exits non-zero with a clear
+message (rather than a quiet 0-row "success") when every tab fails to
+click, specifically to make this loud instead of silent next time.
 
 IMPORTANT - same live retail UI caveats as Dream Team's Spreadex scraper
 (scrape_spreadex_player_markets.py in the sibling dreamteam-projections
@@ -42,7 +63,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from env_utils import db_connect  # noqa: E402
 from name_matching import resolve_player_id  # noqa: E402
 
-URL = "https://www.spreadex.com/sports/en-GB/spread-betting/american-football/nfl/weekly-player-markets/fo/p9852595"
+URL = "https://www.spreadex.com/sports/en-GB/spread-betting/american-football/nfl/weekly-player-markets/fo/p10152662"  # GW2 - update weekly, see docstring
 
 # "Sacks" deliberately excluded: confirmed live (2026-09-07) this market
 # prices INDIVIDUAL defensive players, but this project's player pool only
@@ -53,7 +74,7 @@ URL = "https://www.spreadex.com/sports/en-GB/spread-betting/american-football/nf
 # match unable to tell them apart since neither is genuinely present).
 # Scraping it risks wrong attributions, not just gaps - worse than skipping
 # it outright.
-TABS = ["Passing", "Rushing + Receiving", "Rushing", "Receiving"]
+TABS = ["Passing", "Rushing", "Receiving"]  # real, confirmed-live tab set as of 2026-09-15 - "Rushing + Receiving" no longer exists
 
 LADDER_RE = re.compile(r"^(.*) - (\d+)\+ Price Button$")
 OU_RE = re.compile(r"^(.*) (Over|Under) ([\d.]+) Price Button$")
@@ -212,6 +233,7 @@ def main():
         fixture_cache = {}
         seen_headers = set()
         totals = {"written": 0, "unmatched": 0, "unparsed": 0, "no_fixture": 0}
+        failed_tabs = []
 
         with sync_playwright() as p:
             browser = p.chromium.launch()
@@ -224,6 +246,7 @@ def main():
                     click_tab_and_expand(page, tab_name)
                 except Exception as e:
                     print(f"  [tab failed] {tab_name}: {e}")
+                    failed_tabs.append(tab_name)
                     continue
 
                 panels = page.evaluate(EXTRACT_TAB_JS)
@@ -247,6 +270,18 @@ def main():
             f"\nDone: {totals['written']} player_market_odds rows written, "
             f"{totals['unmatched']} unmatched player name(s), {totals['unparsed']} unrecognised label(s)."
         )
+
+        if len(failed_tabs) == len(TABS):
+            # Every tab failed to even open - almost certainly a dead/redirected
+            # URL (see docstring: this happens every week), not "no markets
+            # posted yet" (which would open the tabs fine and just show 0
+            # buttons). Exit non-zero so this is visibly RED in CI instead of
+            # blending in as a quiet, successful-looking "0 rows written" run.
+            raise RuntimeError(
+                f"All {len(TABS)} tabs failed to open ({failed_tabs}) - the hardcoded URL is almost certainly stale "
+                f"(Spreadex mints a new Weekly Player Markets page id every week). Update URL in this script - see "
+                f"the module docstring for how to find the new one."
+            )
     except Exception:
         conn.rollback()
         raise
